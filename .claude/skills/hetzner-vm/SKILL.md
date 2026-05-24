@@ -180,7 +180,7 @@ PRÓXIMOS PASSOS:
 5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
    SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
    "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
-6. Conecte GitHub App → Resources → primeiro deploy
+6. Conecte GitHub → veja Passo 9
 ```
 
 **Modo `tailscale`:**
@@ -216,8 +216,53 @@ PRÓXIMOS PASSOS:
 6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
    SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
    "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
-7. Conecte GitHub App → Resources → primeiro deploy
+7. Conecte GitHub → veja Passo 9
 ```
+
+## Passo 9 — GitHub (repos privados + webhook)
+
+Perguntar: "Vai usar repos privados do GitHub?"
+
+**Se sim** — explicar as duas opções e perguntar qual prefere:
+
+### Opção A — GitHub App (recomendado)
+
+Coolify cria um GitHub App na sua conta. Você instala nos repos que quiser liberar.
+Webhook configurado automaticamente — cada push dispara deploy.
+
+```
+Coolify → Sources → Add → GitHub App → seguir o wizard
+→ instalar o App nos repos desejados
+→ Resources → New Resource → Public Repository (mesmo sendo privado, já está autorizado)
+```
+
+**Pré-requisito**: FQDN configurado no Coolify (Passo 8 item 5) com HTTPS funcionando.
+O callback OAuth do GitHub App precisa de HTTPS — não funciona via IP:8000.
+
+### Opção B — Deploy Key + Webhook manual
+
+Coolify gera uma chave SSH de deploy. Você adiciona manualmente no repo.
+
+```
+1. Coolify → Resources → New → Private Repository (with deploy key)
+   Coolify exibe uma chave pública SSH — copie-a
+2. GitHub → repo → Settings → Deploy keys → Add deploy key → cole a chave
+3. Para webhook automático:
+   GitHub → repo → Settings → Webhooks → Add webhook
+   Payload URL: https://coolify.seudominio.com/webhooks/source/github
+   Content type: application/json
+   Events: Just the push event
+```
+
+Mais trabalhoso, mas funciona sem criar um GitHub App e sem OAuth.
+
+### Sobre firewall e webhooks
+
+O webhook do GitHub precisa chegar no servidor via HTTPS (porta 443).
+O firewall atual abre 443 apenas via Cloudflare — isso cobre os webhooks do GitHub, que chegam pelo mesmo caminho que o tráfego normal.
+
+**Porta 8000 sem domínio não recebe webhooks** — o GitHub não consegue alcançá-la.
+Por isso o FQDN é necessário antes de configurar qualquer integração.
 
 ## Troubleshooting
 
