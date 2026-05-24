@@ -1,5 +1,5 @@
 # Fetch Cloudflare IP ranges dynamically
-# HTTP/HTTPS are restricted to Cloudflare only — prevents bypassing WAF/DDoS protection
+# HTTP/HTTPS restricted to Cloudflare only — prevents bypassing WAF/DDoS protection
 data "http" "cloudflare_ips_v4" {
   url = "https://www.cloudflare.com/ips-v4"
 }
@@ -18,13 +18,31 @@ resource "hcloud_firewall" "main" {
   name   = "${var.project_name}-${var.environment}-fw"
   labels = { project = var.project_name, env = var.environment }
 
-  # SSH — admin IPs only
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = var.ssh_port
-    source_ips  = var.ssh_allowed_ips
-    description = "SSH"
+  # SSH (public mode) — port open to admin IPs
+  # Omitted in tailscale mode: port 22 is fully closed on the internet
+  dynamic "rule" {
+    for_each = var.ssh_mode == "public" ? [1] : []
+    content {
+      direction   = "in"
+      protocol    = "tcp"
+      port        = var.ssh_port
+      source_ips  = var.ssh_allowed_ips
+      description = "SSH"
+    }
+  }
+
+  # Tailscale direct WireGuard (tailscale mode)
+  # Allows peer-to-peer connections without DERP relay (lower latency)
+  # Tailscale still works without this via DERP/443, but is slower
+  dynamic "rule" {
+    for_each = var.ssh_mode == "tailscale" ? [1] : []
+    content {
+      direction   = "in"
+      protocol    = "udp"
+      port        = "41641"
+      source_ips  = ["0.0.0.0/0", "::/0"]
+      description = "Tailscale WireGuard"
+    }
   }
 
   # HTTP — Cloudflare only

@@ -66,20 +66,35 @@ ls infra/hetzner/
 
 5. **`admin_username`** — usuário não-root no servidor (default: `deploy`).
 
+6. **`ssh_mode`** — como quer acessar o servidor via SSH:
+
+   ```
+   [1] Público (padrão) — porta 22 aberta, restrita ao seu IP no firewall Hetzner
+   [2] Tailscale — porta 22 fechada na internet, acesso só via VPN Tailscale
+   ```
+
+   **Se escolher Tailscale**, pedir o auth key:
+   > 1. Acesse https://login.tailscale.com/admin/settings/keys
+   > 2. **Generate auth key** com: Reusable + Pre-authorized + tag:server + expiry 1 dia
+   > 3. Copie o `tskey-auth-...`
+
+   Vantagem do Tailscale: funciona com IP dinâmico, times com múltiplos IPs, e fecha completamente a porta 22 na internet. Desvantagem: dependência do serviço Tailscale (se travado, usar o Console web da Hetzner).
+
 **Opcionais** — mostrar defaults e perguntar se quer alterar:
 
 | Parâmetro | Default | Opções |
 |-----------|---------|--------|
-| `server_type` | `cx23` (€3.49) | `cpx21` 3vCPU/4GB €7.49 · `cax21` 4vCPU/8GB ARM €9.49 |
+| `server_type` | `cpx21` (€7.49) | `cx23` 2vCPU/4GB €3.49 · `cax21` 4vCPU/8GB ARM €9.49 |
 | `location` | `nbg1` Nuremberg | `hel1` Helsinki · `fsn1` Falkenstein |
-| `ssh_port` | `22` | outro número reduz ruído de bots |
+| `ssh_port` | `22` | outro número reduz ruído de bots (só no modo público) |
 | `timezone` | `UTC` | ex: `America/Sao_Paulo` |
 
 ## Passo 4 — Gerar cloud-init.yaml
 
-Invocar `/linux-vm-hardening` com os parâmetros coletados:
+Invocar `/linux-vm-hardening` com todos os parâmetros coletados:
 - `output_path`: `infra/hetzner/cloud-init.yaml`
-- `admin_username`, `ssh_public_key`, `ssh_port`, `timezone` já coletados acima
+- `admin_username`, `ssh_public_key`, `ssh_port`, `timezone`, `ssh_mode`
+- `tailscale_auth_key` se `ssh_mode=tailscale`
 
 Aguardar a geração do arquivo antes de continuar.
 

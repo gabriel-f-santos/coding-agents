@@ -13,14 +13,31 @@ project_name = "myapp"
 # Generate if needed: ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C "deploy@hetzner"
 ssh_public_key = "ssh-ed25519 AAAA... your-email@example.com"
 
-# Your public IP(s) in CIDR — restricts SSH and Coolify dashboard access
+# Your public IP(s) in CIDR — used for Coolify dashboard access
+# Also used for SSH if ssh_mode = "public"
 # Get your IP: curl ifconfig.me
 ssh_allowed_ips = ["YOUR.IP.HERE/32"]
 
-# --- Optional (uncomment to override defaults) ---
+# =============================================================================
+# SSH mode — choose one
+# =============================================================================
 
-# server_type    = "cx23"   # cx23: 2vCPU/4GB €3.49 | cpx21: 3vCPU/4GB €7.49 | cax21: 4vCPU/8GB ARM €9.49
+# Option A: public (default) — SSH port open, restricted to ssh_allowed_ips
+ssh_mode = "public"
+
+# Option B: tailscale — SSH port closed on internet, access only via Tailscale VPN
+# Uncomment and fill in auth key:
+# ssh_mode           = "tailscale"
+# tailscale_auth_key = "tskey-auth-..."
+# Generate key at: https://login.tailscale.com/admin/settings/keys
+# Settings: Reusable + Pre-authorized + tag:server + expiry 1 day
+
+# =============================================================================
+# Optional (uncomment to override defaults)
+# =============================================================================
+
+# server_type    = "cpx21"  # cx23: 2vCPU/4GB €3.49 | cpx21: 3vCPU/4GB €7.49 | cax21: 4vCPU/8GB ARM €9.49
 # location       = "nbg1"   # nbg1: Nuremberg | hel1: Helsinki | fsn1: Falkenstein
-# ssh_port       = "22"     # Change to reduce bot scan noise
+# ssh_port       = "22"     # only applies when ssh_mode = "public"
 # admin_username = "deploy"
 # environment    = "prod"

@@ -19,8 +19,30 @@ variable "ssh_public_key" {
 }
 
 variable "ssh_allowed_ips" {
-  description = "CIDR list of IPs allowed for SSH and Coolify (your IP)"
+  description = "CIDR list of IPs allowed for SSH (public mode) and Coolify dashboard"
   type        = list(string)
+}
+
+# =============================================================================
+# SSH mode
+# =============================================================================
+
+variable "ssh_mode" {
+  description = "SSH access mode: 'public' (port open to ssh_allowed_ips) or 'tailscale' (port closed, access via VPN)"
+  type        = string
+  default     = "public"
+
+  validation {
+    condition     = contains(["public", "tailscale"], var.ssh_mode)
+    error_message = "ssh_mode must be 'public' or 'tailscale'."
+  }
+}
+
+variable "tailscale_auth_key" {
+  description = "Tailscale auth key (required when ssh_mode = 'tailscale'). Generate at tailscale.com/admin/settings/keys"
+  type        = string
+  sensitive   = true
+  default     = ""
 }
 
 # =============================================================================
@@ -36,8 +58,8 @@ variable "environment" {
 variable "server_type" {
   description = "Hetzner server type"
   type        = string
-  default     = "cx23"
-  # cx23:  2 vCPU  4 GB  40 GB   ~€3.49/mo  (minimum viable for Coolify)
+  default     = "cpx21"
+  # cx23:  2 vCPU  4 GB  40 GB   ~€3.49/mo  (minimum viable)
   # cpx21: 3 vCPU  4 GB  80 GB   ~€7.49/mo  (recommended)
   # cax21: 4 vCPU  8 GB  80 GB   ~€9.49/mo  (ARM — best price/perf)
 }
@@ -56,7 +78,7 @@ variable "location" {
 }
 
 variable "ssh_port" {
-  description = "SSH port (change to reduce bot noise)"
+  description = "SSH port (only used when ssh_mode = 'public')"
   type        = string
   default     = "22"
 }
