@@ -175,11 +175,11 @@ PRÓXIMOS PASSOS:
 1. Acesse http://[server_ip]:8000 → crie conta admin
 2. Setup wizard → "Choose Server" → "Localhost"
 3. "Server is not reachable" → copie a chave exibida → rode o comando acima → Check Again
-4. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-   PORTA 8000 NAO e suportada pelo proxy Cloudflare — deixe "DNS Only" (nuvem cinza)
+4. Configure DNS no Cloudflare:
+   coolify.seudominio.com → A → [server_ip] → Proxied (nuvem laranja)
+   SSL/TLS → Full  (NAO "Full Strict" — causa erro 526 com o cert self-signed do Coolify)
+   O Cloudflare faz a terminacao SSL; o Coolify recebe HTTP interno — funciona com Full.
 5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-   SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
-   "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
 6. Conecte GitHub → veja Passo 9
 ```
 
@@ -211,11 +211,11 @@ PRÓXIMOS PASSOS:
 2. Acesse http://<tailscale-ip>:8000 → crie conta admin
 3. Setup wizard → "Choose Server" → "Localhost"
 4. "Server is not reachable" → copie a chave exibida → rode o comando acima → Check Again
-5. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-   PORTA 8000 NAO e suportada pelo proxy Cloudflare — deixe "DNS Only" (nuvem cinza)
+5. Configure DNS no Cloudflare:
+   coolify.seudominio.com → A → [server_ip] → Proxied (nuvem laranja)
+   SSL/TLS → Full  (NAO "Full Strict" — causa erro 526 com o cert self-signed do Coolify)
+   O Cloudflare faz a terminacao SSL; o Coolify recebe HTTP interno — funciona com Full.
 6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-   SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
-   "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
 7. Conecte GitHub → veja Passo 9
 ```
 
@@ -258,11 +258,30 @@ Mais trabalhoso, mas funciona sem criar um GitHub App e sem OAuth.
 
 ### Sobre firewall e webhooks
 
-O webhook do GitHub precisa chegar no servidor via HTTPS (porta 443).
-O firewall atual abre 443 apenas via Cloudflare — isso cobre os webhooks do GitHub, que chegam pelo mesmo caminho que o tráfego normal.
+O webhook do GitHub chega via HTTPS (porta 443) → Cloudflare proxy → servidor.
+O firewall já abre 443 apenas via Cloudflare, então os webhooks passam normalmente.
 
-**Porta 8000 sem domínio não recebe webhooks** — o GitHub não consegue alcançá-la.
-Por isso o FQDN é necessário antes de configurar qualquer integração.
+**Porta 8000 não recebe webhooks** — o GitHub não consegue alcançá-la.
+FQDN configurado no Coolify é pré-requisito antes de qualquer integração GitHub.
+
+### Acesso ao painel Coolify com domínio (modo tailscale)
+
+Com `ssh_mode=tailscale`, o firewall bloqueia 443 para IPs não-Cloudflare.
+Isso significa que `https://infra.seudominio.com` não abre no browser via internet — só via Tailscale (`:8000`).
+
+Este é o design correto: painel Coolify invisível na internet, webhooks chegam via Cloudflare em 443.
+
+```
+GitHub webhook  → Cloudflare (443) → servidor ✅
+Você (admin)    → Tailscale → 100.x.x.x:8000  ✅
+Internet aleatória → bloqueado pelo firewall   ✅
+```
+
+Se precisar expor o painel publicamente (não recomendado), adicionar em `terraform.tfvars`:
+```hcl
+coolify_allowed_ips = ["0.0.0.0/0"]  # ou seu IP específico
+```
+e adicionar a regra no `firewall.tf`.
 
 ## Troubleshooting
 
