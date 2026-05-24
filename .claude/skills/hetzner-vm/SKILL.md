@@ -160,17 +160,26 @@ Coolify:    http://[server_ip]:8000  (disponível em ~10 min)
 O servidor ainda está instalando Docker e Coolify via cloud-init.
 Para acompanhar: ssh [admin_username]@[server_ip] 'sudo cloud-init status --wait'
 
+⚠️  ATENÇÃO — WIZARD COOLIFY (leia antes de abrir o browser):
+O Coolify vai mostrar "Server is not reachable" ao escolher "Localhost" — isso é esperado.
+A chave SSH que ele usa é gerada durante a instalação, não existe antes do cloud-init rodar.
+
+Quando aparecer a tela com a chave pública, copie-a e rode:
+  ssh [admin_username]@[server_ip] -p [ssh_port] \
+    'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && \
+     echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && \
+     sudo chmod 600 /root/.ssh/authorized_keys'
+Depois clique "Check Again" — deve conectar na primeira tentativa.
+
 PRÓXIMOS PASSOS:
 1. Acesse http://[server_ip]:8000 → crie conta admin
-2. Setup wizard → escolha "Localhost"
-3. Tela "Server is not reachable": copie a chave pública exibida e rode:
-   ssh [admin_username]@[server_ip] 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
-   Depois clique "Check Again" — deve conectar.
+2. Setup wizard → "Choose Server" → "Localhost"
+3. "Server is not reachable" → copie a chave exibida → rode o comando acima → Check Again
 4. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-   ⚠️  PORTA 8000 NÃO É SUPORTADA pelo proxy Cloudflare — deixe o registro em "DNS Only" (nuvem cinza)
+   PORTA 8000 NAO e suportada pelo proxy Cloudflare — deixe "DNS Only" (nuvem cinza)
 5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-   ⚠️  SSL Cloudflare: use modo "Full" (NÃO "Full Strict") até o Coolify gerar o certificado Let's Encrypt
-       "Full Strict" com cert self-signed gera erro 526. Troque para Full Strict depois que o cert estiver ativo.
+   SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
+   "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
 6. Conecte GitHub App → Resources → primeiro deploy
 ```
 
@@ -186,18 +195,27 @@ Coolify:      http://<tailscale-ip>:8000  (disponível em ~10 min, só via Tails
 O servidor ainda está instalando Docker, Coolify e Tailscale via cloud-init.
 Para acompanhar: ssh [admin_username]@<tailscale-ip> 'sudo cloud-init status --wait'
 
+⚠️  ATENÇÃO — WIZARD COOLIFY (leia antes de abrir o browser):
+O Coolify vai mostrar "Server is not reachable" ao escolher "Localhost" — isso é esperado.
+A chave SSH que ele usa é gerada durante a instalação, não existe antes do cloud-init rodar.
+
+Quando aparecer a tela com a chave pública, copie-a e rode:
+  ssh [admin_username]@<tailscale-ip> \
+    'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && \
+     echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && \
+     sudo chmod 600 /root/.ssh/authorized_keys'
+Depois clique "Check Again" — deve conectar na primeira tentativa.
+
 PRÓXIMOS PASSOS:
 1. Aguarde o IP Tailscale: tailscale status
 2. Acesse http://<tailscale-ip>:8000 → crie conta admin
-3. Setup wizard → escolha "Localhost"
-4. Tela "Server is not reachable": copie a chave pública exibida e rode:
-   ssh [admin_username]@<tailscale-ip> 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
-   Depois clique "Check Again" — deve conectar.
+3. Setup wizard → "Choose Server" → "Localhost"
+4. "Server is not reachable" → copie a chave exibida → rode o comando acima → Check Again
 5. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-   ⚠️  PORTA 8000 NÃO É SUPORTADA pelo proxy Cloudflare — deixe o registro em "DNS Only" (nuvem cinza)
+   PORTA 8000 NAO e suportada pelo proxy Cloudflare — deixe "DNS Only" (nuvem cinza)
 6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-   ⚠️  SSL Cloudflare: use modo "Full" (NÃO "Full Strict") até o Coolify gerar o certificado Let's Encrypt
-       "Full Strict" com cert self-signed gera erro 526. Troque para Full Strict depois que o cert estiver ativo.
+   SSL Cloudflare: use modo "Full" (NAO "Full Strict") ate o Let's Encrypt ser gerado
+   "Full Strict" com cert self-signed gera erro 526. Troque depois que o cert estiver ativo.
 7. Conecte GitHub App → Resources → primeiro deploy
 ```
 
