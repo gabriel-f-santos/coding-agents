@@ -33,29 +33,34 @@ Confirmar que tem conta antes de continuar.
 
 ## Passo 2 — Instalar cliente na sua máquina
 
-Verificar o estado acima. Se não instalado:
+Verificar o estado acima.
 
-**macOS:**
-```bash
-brew install tailscale
-# ou baixar em https://tailscale.com/download/mac
-```
+**Se já instalado e conectado** (`tailscale status` mostra IP 100.x.x.x): pular este passo.
 
-**Linux (Ubuntu/Debian):**
+**Se não instalado**, perguntar ao usuário:
+> "Tailscale não encontrado na sua máquina. Posso instalar agora?"
+
+Se confirmar, detectar o OS e instalar:
+
+**Linux (Ubuntu/Debian)** — rodar diretamente:
 ```bash
 curl -fsSL https://tailscale.com/install.sh | sh
+```
+
+**macOS** — rodar diretamente se `brew` disponível:
+```bash
+brew install tailscale
+```
+Ou orientar a baixar em https://tailscale.com/download/mac se não tiver brew.
+
+**Windows:** não é possível instalar via terminal — orientar a baixar em https://tailscale.com/download/windows.
+
+Após instalar, autenticar (abre o browser):
+```bash
 sudo tailscale up
 ```
 
-**Windows:** baixar em https://tailscale.com/download/windows
-
-Após instalar, autenticar:
-```bash
-tailscale up
-# abre o browser para login com a conta criada no Passo 1
-```
-
-Verificar que está conectado:
+Verificar conexão:
 ```bash
 tailscale status
 # deve mostrar seu dispositivo com IP 100.x.x.x

@@ -114,6 +114,25 @@ cd infra/hetzner && terraform plan -out=tfplan
 
 Resumir o plano: recursos criados, server_type, location. Se aparecer qualquer `destroy`, **parar e pedir confirmação explícita** com aviso de impacto.
 
+### Verificação obrigatória por ssh_mode
+
+Antes de pedir confirmação, validar que o plano bate com o modo escolhido:
+
+**`ssh_mode = tailscale`** — plano deve ter **apenas**:
+- ✅ UDP 41641 — Tailscale WireGuard
+- ✅ TCP 80 / 443 — Cloudflare
+- ✅ ICMP
+- ❌ TCP 22 — não deve aparecer
+- ❌ TCP 8000 / 6001 / 6002 — não devem aparecer (Coolify via Tailscale IP)
+
+**`ssh_mode = public`** — plano deve ter:
+- ✅ TCP 22 restrito a `ssh_allowed_ips`
+- ✅ TCP 8000 / 6001 / 6002 restrito a `ssh_allowed_ips`
+- ✅ TCP 80 / 443 — Cloudflare
+- ✅ ICMP
+
+Se qualquer porta errada aparecer, parar, corrigir o tfvars e re-rodar o plan.
+
 ## Passo 7 — Confirmação e apply
 
 Pedir confirmação antes de aplicar. Após OK do usuário:
@@ -128,23 +147,44 @@ cd infra/hetzner && terraform apply tfplan
 cd infra/hetzner && terraform output
 ```
 
-Apresentar ao usuário:
+Apresentar ao usuário — mensagem varia por `ssh_mode`:
 
+**Modo `public`:**
 ```
 SERVIDOR PROVISIONADO
 =====================
-IP:      [server_ip]
-SSH:     [ssh_command]
-Coolify: http://[server_ip]:8000  (disponível em ~10 min)
+IP público: [server_ip]
+SSH:        ssh [admin_username]@[server_ip] -p [ssh_port]
+Coolify:    http://[server_ip]:8000  (disponível em ~10 min)
 
 O servidor ainda está instalando Docker e Coolify via cloud-init.
-Para acompanhar: ssh deploy@IP 'sudo cloud-init status --wait'
+Para acompanhar: ssh [admin_username]@[server_ip] 'sudo cloud-init status --wait'
 
 PRÓXIMOS PASSOS:
-1. Acesse http://[IP]:8000 e crie a conta admin Coolify
-2. Configure DNS: coolify.seudominio.com → A → [IP] (DNS Only)
+1. Acesse http://[server_ip]:8000 e crie a conta admin Coolify
+2. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
 3. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
 4. Conecte GitHub App → Resources → primeiro deploy
+```
+
+**Modo `tailscale`:**
+```
+SERVIDOR PROVISIONADO
+=====================
+IP público:   [server_ip]  (só para tráfego web — SSH/Coolify fechados)
+IP Tailscale: aguardando... rode: tailscale status | grep [project_name]
+SSH:          ssh [admin_username]@<tailscale-ip>
+Coolify:      http://<tailscale-ip>:8000  (disponível em ~10 min, só via Tailscale)
+
+O servidor ainda está instalando Docker, Coolify e Tailscale via cloud-init.
+Para acompanhar: ssh [admin_username]@<tailscale-ip> 'sudo cloud-init status --wait'
+
+PRÓXIMOS PASSOS:
+1. Aguarde o IP Tailscale: tailscale status
+2. Acesse http://<tailscale-ip>:8000 e crie a conta admin Coolify
+3. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
+4. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+5. Conecte GitHub App → Resources → primeiro deploy
 ```
 
 ## Troubleshooting

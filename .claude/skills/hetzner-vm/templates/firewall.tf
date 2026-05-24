@@ -63,31 +63,21 @@ resource "hcloud_firewall" "main" {
     description = "HTTPS via Cloudflare"
   }
 
-  # Coolify dashboard — admin only
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "8000"
-    source_ips  = var.ssh_allowed_ips
-    description = "Coolify UI"
-  }
-
-  # Coolify WebSocket — admin only
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "6001"
-    source_ips  = var.ssh_allowed_ips
-    description = "Coolify WebSocket"
-  }
-
-  # Coolify terminal proxy — admin only
-  rule {
-    direction   = "in"
-    protocol    = "tcp"
-    port        = "6002"
-    source_ips  = var.ssh_allowed_ips
-    description = "Coolify terminal"
+  # Coolify ports — public mode only
+  # In tailscale mode, Coolify is accessed via Tailscale IP (100.x.x.x) — ports stay closed on internet
+  dynamic "rule" {
+    for_each = var.ssh_mode == "public" ? {
+      "8000" = "Coolify UI"
+      "6001" = "Coolify WebSocket"
+      "6002" = "Coolify terminal"
+    } : {}
+    content {
+      direction   = "in"
+      protocol    = "tcp"
+      port        = rule.key
+      source_ips  = var.ssh_allowed_ips
+      description = rule.value
+    }
   }
 
   # ICMP for diagnostics
