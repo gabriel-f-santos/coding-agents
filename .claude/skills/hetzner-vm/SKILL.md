@@ -161,10 +161,14 @@ O servidor ainda está instalando Docker e Coolify via cloud-init.
 Para acompanhar: ssh [admin_username]@[server_ip] 'sudo cloud-init status --wait'
 
 PRÓXIMOS PASSOS:
-1. Acesse http://[server_ip]:8000 e crie a conta admin Coolify
-2. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-3. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-4. Conecte GitHub App → Resources → primeiro deploy
+1. Acesse http://[server_ip]:8000 → crie conta admin
+2. Setup wizard → escolha "Localhost"
+3. Tela "Server is not reachable": copie a chave pública exibida e rode:
+   ssh [admin_username]@[server_ip] 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
+   Depois clique "Check Again" — deve conectar.
+4. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
+5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+6. Conecte GitHub App → Resources → primeiro deploy
 ```
 
 **Modo `tailscale`:**
@@ -181,10 +185,14 @@ Para acompanhar: ssh [admin_username]@<tailscale-ip> 'sudo cloud-init status --w
 
 PRÓXIMOS PASSOS:
 1. Aguarde o IP Tailscale: tailscale status
-2. Acesse http://<tailscale-ip>:8000 e crie a conta admin Coolify
-3. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
-4. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
-5. Conecte GitHub App → Resources → primeiro deploy
+2. Acesse http://<tailscale-ip>:8000 → crie conta admin
+3. Setup wizard → escolha "Localhost"
+4. Tela "Server is not reachable": copie a chave pública exibida e rode:
+   ssh [admin_username]@<tailscale-ip> 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
+   Depois clique "Check Again" — deve conectar.
+5. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
+6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+7. Conecte GitHub App → Resources → primeiro deploy
 ```
 
 ## Troubleshooting
@@ -194,5 +202,6 @@ PRÓXIMOS PASSOS:
 | `SSH key name already exists` | Chave já no projeto Hetzner | `terraform import hcloud_ssh_key.main <KEY_ID>` |
 | `Invalid token` | API token errado ou expirado | Regerar no console Hetzner |
 | SSH recusa após 10+ min | IP não está em `ssh_allowed_ips` | `curl ifconfig.me` e atualizar tfvars |
-| Coolify não abre na 8000 | cloud-init ainda rodando | `ssh deploy@IP 'sudo cloud-init status'` |
+| Coolify não abre na 8000 | cloud-init ainda rodando | `ssh [admin_username]@IP 'sudo cloud-init status'` |
+| `Server is not reachable` no wizard Coolify | Chave SSH do Coolify não está em `/root/.ssh/authorized_keys` | Copiar a chave exibida na tela e rodar: `echo "CHAVE" \| sudo tee -a /root/.ssh/authorized_keys` → Check Again |
 | `Error acquiring state lock` | Apply anterior travado | `cd infra/hetzner && terraform force-unlock LOCK_ID` |
