@@ -98,8 +98,8 @@ runcmd:
   - usermod -aG docker {{ADMIN_USERNAME}}
   - systemctl enable --now docker
 
-  # Coolify
-  - curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
+  # Coolify — DEBIAN_FRONTEND prevents whiptail interactive prompt in headless cloud-init
+  - DEBIAN_FRONTEND=noninteractive curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
 
   # UFW — regras variam por ssh_mode (substituído abaixo)
   - ufw default deny incoming
