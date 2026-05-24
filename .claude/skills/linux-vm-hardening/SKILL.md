@@ -53,14 +53,11 @@ Substituir `{{TAILSCALE_INSTALL}}` por linha vazia.
 
 ### Se ssh_mode = tailscale
 
-Pedir ao usuário:
-> **Você precisa de um auth key Tailscale.**
->
-> 1. Acesse https://login.tailscale.com/admin/settings/keys
-> 2. Clique **Generate auth key**
-> 3. Marque: **Reusable** + **Pre-authorized** + **Tags: tag:server**
-> 4. Expiry: 1 dia (a chave é usada só uma vez no boot)
-> 5. Copie o token `tskey-auth-...`
+Invocar `/tailscale-setup` para guiar o usuário pelo setup completo do tailnet
+(conta, cliente local, ACL policy e geração do auth key).
+
+Aguardar a conclusão — o `/tailscale-setup` retorna o auth key `tskey-auth-...`.
+Usar esse valor como `{{TAILSCALE_AUTH_KEY}}` no template.
 
 Substituir `{{UFW_SSH_RULES}}` por:
 ```yaml
