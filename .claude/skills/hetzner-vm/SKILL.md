@@ -204,4 +204,5 @@ PRÓXIMOS PASSOS:
 | SSH recusa após 10+ min | IP não está em `ssh_allowed_ips` | `curl ifconfig.me` e atualizar tfvars |
 | Coolify não abre na 8000 | cloud-init ainda rodando | `ssh [admin_username]@IP 'sudo cloud-init status'` |
 | `Server is not reachable` no wizard Coolify | Chave SSH do Coolify não está em `/root/.ssh/authorized_keys` | Copiar a chave exibida na tela e rodar: `echo "CHAVE" \| sudo tee -a /root/.ssh/authorized_keys` → Check Again |
+| `connect to host.docker.internal port 22: Operation timed out` | UFW bloqueia SSH do container Docker para o host | `sudo ufw allow in on docker0 to any port 22 proto tcp && sudo ufw reload` |
 | `Error acquiring state lock` | Apply anterior travado | `cd infra/hetzner && terraform force-unlock LOCK_ID` |

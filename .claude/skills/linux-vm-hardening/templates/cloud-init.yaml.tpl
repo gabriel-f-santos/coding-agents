@@ -110,6 +110,9 @@ runcmd:
   - ufw allow 8000/tcp comment "Coolify UI"
   - ufw allow 6001/tcp comment "Coolify WebSocket"
   - ufw allow 6002/tcp comment "Coolify terminal"
+  # Coolify runs in Docker and SSHes into host via docker0 bridge (host.docker.internal:22)
+  # Without this rule, Coolify shows "Operation timed out" when managing the server
+  - ufw allow in on docker0 to any port 22 proto tcp comment "Coolify Docker bridge SSH"
   - ufw --force enable
 
   {{TAILSCALE_INSTALL}}
