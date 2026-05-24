@@ -167,7 +167,10 @@ PRÓXIMOS PASSOS:
    ssh [admin_username]@[server_ip] 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
    Depois clique "Check Again" — deve conectar.
 4. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
+   ⚠️  PORTA 8000 NÃO É SUPORTADA pelo proxy Cloudflare — deixe o registro em "DNS Only" (nuvem cinza)
 5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+   ⚠️  SSL Cloudflare: use modo "Full" (NÃO "Full Strict") até o Coolify gerar o certificado Let's Encrypt
+       "Full Strict" com cert self-signed gera erro 526. Troque para Full Strict depois que o cert estiver ativo.
 6. Conecte GitHub App → Resources → primeiro deploy
 ```
 
@@ -191,7 +194,10 @@ PRÓXIMOS PASSOS:
    ssh [admin_username]@<tailscale-ip> 'sudo mkdir -p /root/.ssh && sudo chmod 700 /root/.ssh && echo "CHAVE_AQUI" | sudo tee -a /root/.ssh/authorized_keys && sudo chmod 600 /root/.ssh/authorized_keys'
    Depois clique "Check Again" — deve conectar.
 5. Configure DNS: coolify.seudominio.com → A → [server_ip] (DNS Only)
+   ⚠️  PORTA 8000 NÃO É SUPORTADA pelo proxy Cloudflare — deixe o registro em "DNS Only" (nuvem cinza)
 6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+   ⚠️  SSL Cloudflare: use modo "Full" (NÃO "Full Strict") até o Coolify gerar o certificado Let's Encrypt
+       "Full Strict" com cert self-signed gera erro 526. Troque para Full Strict depois que o cert estiver ativo.
 7. Conecte GitHub App → Resources → primeiro deploy
 ```
 
@@ -204,5 +210,7 @@ PRÓXIMOS PASSOS:
 | SSH recusa após 10+ min | IP não está em `ssh_allowed_ips` | `curl ifconfig.me` e atualizar tfvars |
 | Coolify não abre na 8000 | cloud-init ainda rodando | `ssh [admin_username]@IP 'sudo cloud-init status'` |
 | `Server is not reachable` no wizard Coolify | Chave SSH do Coolify não está em `/root/.ssh/authorized_keys` | Copiar a chave exibida na tela e rodar: `echo "CHAVE" \| sudo tee -a /root/.ssh/authorized_keys` → Check Again |
-| `connect to host.docker.internal port 22: Operation timed out` | UFW bloqueia SSH do container Docker para o host | `sudo ufw allow in on docker0 to any port 22 proto tcp && sudo ufw reload` |
+| `connect to host.docker.internal port 22: Operation timed out` | UFW bloqueia SSH do container Docker para o host — `ufw allow` não funciona para bridge Docker, precisa ir em `before.rules` | `sudo sed -i '/^# End required lines/a \\n# Allow Docker containers to reach host SSH\n-A ufw-before-input -i docker0 -p tcp --dport 22 -j ACCEPT\n-A ufw-before-input -i br-+ -p tcp --dport 22 -j ACCEPT' /etc/ufw/before.rules && sudo ufw reload` |
 | `Error acquiring state lock` | Apply anterior travado | `cd infra/hetzner && terraform force-unlock LOCK_ID` |
+| Erro 526 no Cloudflare | SSL mode "Full Strict" com cert self-signed do Coolify | Trocar para modo "Full" no Cloudflare até o Let's Encrypt ser gerado |
+| Dashboard Coolify abre mas sem HTTPS via Cloudflare | Porta 8000 não é suportada pelo proxy Cloudflare | Acesse via IP direto (`:8000`) ou configure FQDN com porta padrão 443 |
