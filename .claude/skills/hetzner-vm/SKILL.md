@@ -179,7 +179,7 @@ PRÓXIMOS PASSOS:
    coolify.seudominio.com → A → [server_ip] → Proxied (nuvem laranja)
    SSL/TLS → Full  (NAO "Full Strict" — causa erro 526 com o cert self-signed do Coolify)
    O Cloudflare faz a terminacao SSL; o Coolify recebe HTTP interno — funciona com Full.
-5. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+5. Coolify Settings > Instance > campo "URL" → https://coolify.seudominio.com → Save
 6. Conecte GitHub → veja Passo 9
 ```
 
@@ -215,7 +215,7 @@ PRÓXIMOS PASSOS:
    coolify.seudominio.com → A → [server_ip] → Proxied (nuvem laranja)
    SSL/TLS → Full  (NAO "Full Strict" — causa erro 526 com o cert self-signed do Coolify)
    O Cloudflare faz a terminacao SSL; o Coolify recebe HTTP interno — funciona com Full.
-6. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+6. Coolify Settings > Instance > campo "URL" → https://coolify.seudominio.com → Save
 7. Conecte GitHub → veja Passo 9
 ```
 
@@ -236,7 +236,7 @@ Coolify → Sources → Add → GitHub App → seguir o wizard
 → Resources → New Resource → Public Repository (mesmo sendo privado, já está autorizado)
 ```
 
-**Pré-requisito**: FQDN configurado no Coolify (Passo 8 item 5) com HTTPS funcionando.
+**Pré-requisito**: URL configurada no Coolify (Passo 8 item 5) com HTTPS funcionando.
 O callback OAuth do GitHub App precisa de HTTPS — não funciona via IP:8000.
 
 ### Opção B — Deploy Key + Webhook manual
@@ -262,7 +262,7 @@ O webhook do GitHub chega via HTTPS (porta 443) → Cloudflare proxy → servido
 O firewall já abre 443 apenas via Cloudflare, então os webhooks passam normalmente.
 
 **Porta 8000 não recebe webhooks** — o GitHub não consegue alcançá-la.
-FQDN configurado no Coolify é pré-requisito antes de qualquer integração GitHub.
+URL configurada no Coolify (campo "URL" em Settings > Instance) é pré-requisito antes de qualquer integração GitHub.
 
 ### Acesso ao painel Coolify com domínio (modo tailscale)
 
@@ -295,4 +295,4 @@ e adicionar a regra no `firewall.tf`.
 | `connect to host.docker.internal port 22: Operation timed out` | UFW bloqueia SSH do container Docker para o host — `ufw allow` não funciona para bridge Docker, precisa ir em `before.rules` | `sudo sed -i '/^# End required lines/a \\n# Allow Docker containers to reach host SSH\n-A ufw-before-input -i docker0 -p tcp --dport 22 -j ACCEPT\n-A ufw-before-input -i br-+ -p tcp --dport 22 -j ACCEPT' /etc/ufw/before.rules && sudo ufw reload` |
 | `Error acquiring state lock` | Apply anterior travado | `cd infra/hetzner && terraform force-unlock LOCK_ID` |
 | Erro 526 no Cloudflare | SSL mode "Full Strict" com cert self-signed do Coolify | Trocar para modo "Full" no Cloudflare até o Let's Encrypt ser gerado |
-| Dashboard Coolify abre mas sem HTTPS via Cloudflare | Porta 8000 não é suportada pelo proxy Cloudflare | Acesse via IP direto (`:8000`) ou configure FQDN com porta padrão 443 |
+| Dashboard Coolify abre mas sem HTTPS via Cloudflare | Porta 8000 não é suportada pelo proxy Cloudflare | Acesse via IP/Tailscale (`:8000`) e configure a URL em Settings > Instance |
