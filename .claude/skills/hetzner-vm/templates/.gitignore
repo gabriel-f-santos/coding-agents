@@ -1,0 +1,14 @@
+# Secrets — NEVER commit
+terraform.tfvars
+*.tfvars
+!*.tfvars.example
+
+# Terraform state — use remote backend for production
+*.tfstate
+*.tfstate.backup
+*.tfstate.d/
+
+# Terraform internals
+.terraform/
+.terraform.lock.hcl
+tfplan

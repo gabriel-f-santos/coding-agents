@@ -1,0 +1,143 @@
+---
+name: hetzner-vm
+description: |
+  Provisiona VM Hetzner completa com Coolify via Terraform.
+  Copia templates terraform para infra/hetzner/, chama /linux-vm-hardening
+  para gerar cloud-init seguro, e executa terraform apply.
+  Funciona em qualquer projeto — não exige estrutura pré-existente.
+  Use para criar nova VM Hetzner com Coolify em qualquer projeto.
+  Não usar para atualizar infra existente sem revisar o plan primeiro.
+disable-model-invocation: true
+allowed-tools: Bash(terraform *) Bash(tofu *) Bash(hcloud *) Bash(ssh *) Bash(curl *) Bash(cp *) Bash(mkdir *) Bash(ls *) Bash(cat *) Read Write
+---
+
+# Hetzner VM — Provisionamento Completo
+
+Wizard que provisiona do zero: copia templates → chama `/linux-vm-hardening` → terraform apply.
+
+## Estado atual do ambiente
+
+```!
+echo "=== Ferramentas ===" \
+  && (terraform version 2>/dev/null | head -1 || tofu version 2>/dev/null | head -1 || echo "terraform/tofu: NAO INSTALADO") \
+  && (hcloud version 2>/dev/null | head -1 || echo "hcloud: nao instalado (opcional)") \
+  && echo "" && echo "=== Projeto ===" \
+  && (ls infra/hetzner/ 2>/dev/null && echo "infra/hetzner/ ja existe" || echo "infra/hetzner/ sera criado") \
+  && (ls infra/hetzner/terraform.tfvars 2>/dev/null && echo "terraform.tfvars: JA EXISTE" || echo "terraform.tfvars: sera criado") \
+  && (ls infra/hetzner/cloud-init.yaml 2>/dev/null && echo "cloud-init.yaml: JA EXISTE" || echo "cloud-init.yaml: sera gerado") \
+  && echo "" && echo "=== Seu IP publico ===" && (curl -s --max-time 3 ifconfig.me || echo "nao obtido") \
+  && echo "" && echo "=== SSH Key ===" \
+  && (cat ~/.ssh/id_ed25519.pub 2>/dev/null || echo "~/.ssh/id_ed25519.pub nao encontrada")
+```
+
+## Passo 1 — Ferramentas
+
+Se `terraform`/`tofu` não instalado, parar e orientar:
+- OpenTofu (recomendado): `snap install --classic opentofu` ou `brew install opentofu`
+- Terraform: `brew install terraform`
+
+hcloud CLI é opcional mas útil para validar o token:
+- `brew install hcloud` ou https://github.com/hetznercloud/cli/releases
+
+## Passo 2 — Copiar templates para o projeto
+
+```bash
+mkdir -p infra/hetzner
+cp -r "${CLAUDE_SKILL_DIR}/templates/." infra/hetzner/
+ls infra/hetzner/
+```
+
+## Passo 3 — Coletar parâmetros (um por vez)
+
+**Obrigatórios:**
+
+1. **`project_name`** — nome do projeto em kebab-case (ex: `meuapp`). Nomeia todos os recursos no Hetzner.
+
+2. **`hetzner_api_token`** — token de API Hetzner com permissão Read+Write.
+   > Console Hetzner > selecione o projeto > **Security > API Tokens > Generate API Token**
+   > Permissão: **Read & Write** — token mostrado uma única vez, copiar agora.
+
+3. **`ssh_public_key`** — conteúdo da chave pública SSH (já detectado acima).
+   - Se não existe: `ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -C "deploy@hetzner"`
+
+4. **`ssh_allowed_ips`** — IP público atual já detectado acima. Confirmar com o usuário.
+   - Se IP for dinâmico: avisar que precisará atualizar e rodar `terraform apply` quando mudar.
+   - Formato: `["1.2.3.4/32"]` — múltiplos: `["1.2.3.4/32", "5.6.7.8/32"]`
+
+5. **`admin_username`** — usuário não-root no servidor (default: `deploy`).
+
+**Opcionais** — mostrar defaults e perguntar se quer alterar:
+
+| Parâmetro | Default | Opções |
+|-----------|---------|--------|
+| `server_type` | `cx23` (€3.49) | `cpx21` 3vCPU/4GB €7.49 · `cax21` 4vCPU/8GB ARM €9.49 |
+| `location` | `nbg1` Nuremberg | `hel1` Helsinki · `fsn1` Falkenstein |
+| `ssh_port` | `22` | outro número reduz ruído de bots |
+| `timezone` | `UTC` | ex: `America/Sao_Paulo` |
+
+## Passo 4 — Gerar cloud-init.yaml
+
+Invocar `/linux-vm-hardening` com os parâmetros coletados:
+- `output_path`: `infra/hetzner/cloud-init.yaml`
+- `admin_username`, `ssh_public_key`, `ssh_port`, `timezone` já coletados acima
+
+Aguardar a geração do arquivo antes de continuar.
+
+## Passo 5 — Criar terraform.tfvars
+
+Criar `infra/hetzner/terraform.tfvars` com os valores coletados. Não exibir o token em output.
+
+## Passo 6 — Terraform init + plan
+
+```bash
+cd infra/hetzner && terraform init
+```
+
+```bash
+cd infra/hetzner && terraform plan -out=tfplan
+```
+
+Resumir o plano: recursos criados, server_type, location. Se aparecer qualquer `destroy`, **parar e pedir confirmação explícita** com aviso de impacto.
+
+## Passo 7 — Confirmação e apply
+
+Pedir confirmação antes de aplicar. Após OK do usuário:
+
+```bash
+cd infra/hetzner && terraform apply tfplan
+```
+
+## Passo 8 — Outputs e próximos passos
+
+```bash
+cd infra/hetzner && terraform output
+```
+
+Apresentar ao usuário:
+
+```
+SERVIDOR PROVISIONADO
+=====================
+IP:      [server_ip]
+SSH:     [ssh_command]
+Coolify: http://[server_ip]:8000  (disponível em ~10 min)
+
+O servidor ainda está instalando Docker e Coolify via cloud-init.
+Para acompanhar: ssh deploy@IP 'sudo cloud-init status --wait'
+
+PRÓXIMOS PASSOS:
+1. Acesse http://[IP]:8000 e crie a conta admin Coolify
+2. Configure DNS: coolify.seudominio.com → A → [IP] (DNS Only)
+3. Coolify Settings > Instance > FQDN → https://coolify.seudominio.com
+4. Conecte GitHub App → Resources → primeiro deploy
+```
+
+## Troubleshooting
+
+| Erro | Causa | Solução |
+|------|-------|---------|
+| `SSH key name already exists` | Chave já no projeto Hetzner | `terraform import hcloud_ssh_key.main <KEY_ID>` |
+| `Invalid token` | API token errado ou expirado | Regerar no console Hetzner |
+| SSH recusa após 10+ min | IP não está em `ssh_allowed_ips` | `curl ifconfig.me` e atualizar tfvars |
+| Coolify não abre na 8000 | cloud-init ainda rodando | `ssh deploy@IP 'sudo cloud-init status'` |
+| `Error acquiring state lock` | Apply anterior travado | `cd infra/hetzner && terraform force-unlock LOCK_ID` |
