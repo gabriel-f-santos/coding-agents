@@ -1,0 +1,15 @@
+# Codex sidecar — tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+
+# Required external systems — Codex fails fast (or warns) if a listed MCP server is missing.
+# The Figma MCP server is the core dependency: this skill is its integration layer.
+dependencies:
+  mcp_servers: [figma]   # the Figma Dev Mode MCP server (local or remote/SSE).
+                         # Rename to your registered server id if it differs (e.g. figma-dev-mode).
+  skills: []             # callers (ux-design) chain TO this skill; this one chains to none.
+
+# Auto-invocation on: ux-design and users invoke it implicitly by handing over a screen spec.
+# The skill itself degrades gracefully if the figma MCP is absent, so implicit use is safe.
+allow_implicit_invocation: true
+
+display_name: "Figma (spec → frame)"
+category: "design"

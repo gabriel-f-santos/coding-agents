@@ -63,6 +63,10 @@ From the answers, classify the **project type** (backend/API, web app, CLI, mobi
 automation, library) and the **business context** (B2B vs B2C, who pays). This focuses every
 later question. Record a running spec of decisions.
 
+> **Coming from `product-brainstorming`?** Take its **chosen hypothesis** ("Acredito que
+> [público] tem dificuldade em [dor]") and **assumptions to test** as the starting point instead
+> of asking from scratch — then validate them here with real evidence.
+
 ### Step 2 — Founder deep-dive interview
 
 Read `references/interview-founder.md`. Work through the relevant categories **in order**

@@ -1,0 +1,7 @@
+# Codex sidecar — tool/dependency control lives here, not in SKILL.md frontmatter.
+dependencies:
+  mcp_servers: []          # design MCP optional; discovered at runtime
+  skills: [pencil, figma]  # optional render-tool skills (used if installed)
+allow_implicit_invocation: true
+display_name: "UX Design (screens & flows)"
+category: "design"

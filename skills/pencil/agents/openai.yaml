@@ -1,0 +1,18 @@
+# Codex sidecar — place at  pencil/agents/openai.yaml
+# Tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+
+# Required external systems. The Pencil MCP server is the integration target.
+# NOTE: declaring it as a hard dependency makes Codex fail fast if Pencil is missing — but this
+# skill is explicitly designed to DEGRADE GRACEFULLY (emit the textual spec) when Pencil is absent.
+# So it is listed under `optional`, not `mcp_servers`, to preserve the graceful-degradation contract.
+# If your team mandates Pencil always be present, move "pencil" into `mcp_servers`.
+dependencies:
+  mcp_servers: []          # intentionally empty — skill must run (degraded) without Pencil
+  optional: [pencil]       # the Pencil MCP server, discovered at runtime
+  skills: []               # called by `ux-design` (caller, not a hard dependency)
+
+# Non-destructive design authoring; auto-invocation on so `ux-design` can chain into it.
+allow_implicit_invocation: true
+
+display_name: "Pencil (pencil.dev MCP integration)"
+category: "design"
