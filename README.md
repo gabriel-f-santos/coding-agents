@@ -130,6 +130,18 @@ O corpo das skills é portável; o controle por plataforma é sidecar:
 - Referência de fundo: [`docs/advanced-skill-engineering.md`](docs/advanced-skill-engineering.md),
   [`best-practices-skill.md`](best-practices-skill.md), [`SECURITY_ANTIPATTERNS.md`](SECURITY_ANTIPATTERNS.md).
 
+## Inspirações & adaptações
+
+Parte do catálogo e do fluxo foi adaptada/inspirada em terceiros — crédito completo em
+[`CREDITS.md`](CREDITS.md):
+- **[Sentry](https://github.com/getsentry)** ([getsentry/skills](https://github.com/getsentry/skills)) —
+  adaptação direta: `skill-scanner`, `sentry-security-review`, e o reporte *confidence-based* dos
+  reviewers; aprendizado do `skill-writer` (iteração + description-optimization) foi pra `skill-gen`.
+- **[Full Cycle](https://github.com/devfullcycle)** — influência metodológica: DDD/bounded
+  contexts/event-driven → `tech-discovery` e `ddd`; os projetos `mba-ia-*` (refactor, PR
+  evaluation, greenfield) ecoam `review-phase`, `refactor` e a mentalidade do pipeline
+  discovery → design → plan → execute.
+
 ## Também neste repo
 
 Além do catálogo de skills, o repo mantém:
