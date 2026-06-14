@@ -1,172 +1,144 @@
-# 🚀 Base Inits - Vibecoding Templates & Multi-Agent System
+# coding-agents — Agent Skills catalog
 
-**Production-ready templates** para inicialização rápida de projetos + **Sistema Multi-Agente Autônomo** para desenvolvimento de features seguindo arquiteturas específicas.
+A curated catalog of portable [Agent Skills](https://agentskills.io) — reusable, version-
+controlled capabilities for Claude Code, OpenAI Codex, and opencode. This repo is the central
+place we author, store, and distribute skills; copy what you need into a project.
 
-## 🎯 O que é este projeto?
+Skills live under **`skills/`** (one folder per skill, each with a `SKILL.md`). Install them into
+a project's `.claude/skills/` (the discovery path) with `install-skills.sh`.
 
-### 1. **📁 Templates Vibecoding** 
-Templates base otimizados para **desenvolvimento rápido** (15 minutos por feature) com **Claude Code subagents**.
+---
 
-### 2. **🤖 Sistema Multi-Agente Autônomo**
-Agentes especializados que **desenvolvem features completas automaticamente** seguindo a arquitetura específica do seu projeto.
+## The flow — product → build
 
-## 📁 Templates Disponíveis
+The skills compose into a discovery-to-delivery pipeline. Each stage produces an artifact the
+next consumes (the feature **slug** carries through every step):
 
-### **Backend APIs**
-- **🐍 fastapi_sqlalchemy** - FastAPI + SQLAlchemy (sync) + PostgreSQL + JWT
-- **⚡ fastapi_sqlalchemy_async** - FastAPI + SQLAlchemy Async + Alta Performance  
-- **🍃 fastapi_beanieodm** - FastAPI + Beanie ODM + MongoDB + Async
-- **🟢 fastify_api** - Fastify + Prisma + SQLite + JSON Schema
-- **🔷 fastify_api_ts** - Fastify + TypeScript + Prisma + Type Safety
-
-### **Frontend Apps**  
-- **⚛️ nextjs_vibecoding** - Next.js 14 + shadcn/ui + TanStack Query + Zustand
-- **📱 front_flutter** - Flutter + Riverpod + Feature-First + Official MVVM
-
-## 🚀 Quick Start
-
-### **Opção 1: Usar Templates Tradicionais**
-```bash
-# 1. Clone este repositório
-git clone https://github.com/seu-repo/base-inits.git
-cd base-inits
-
-# 2. Copie o template desejado
-cp -r templates/fastapi_sqlalchemy meu-novo-projeto
-cd meu-novo-projeto
-
-# 3. Configure e execute
-cp .env.example .env  # Configure suas variáveis
-pip install -r requirements.txt
-python run.py
+```
+product-brainstorming ─┐
+                       ├─► product-discovery ─► tech-discovery ─► prd-creator ─► research ─► (plan → implement)
+ideia / problema       │   discovery brief     tech brief        prd-<slug>.md  decisions
+                       │   (problema validado)  (arquitetura)
+                       └─ pura ideação
 ```
 
-### **Opção 2: Usar Sistema PRP + Multi-Agente (Recomendado)**
+- **product-brainstorming** — sparring partner pra explorar o espaço do problema (pura ideação).
+- **product-discovery** — entrevista o founder (Mom Test/JTBD), faz pesquisa de mercado, gera
+  instrumentos de pesquisa com usuários, e escreve o discovery brief (problema validado).
+- **tech-discovery** — arquiteto técnico sênior: arquitetura, boundaries, dados, NFRs, STRIDE,
+  riscos/spikes → Tech Discovery Brief.
+- **prd-creator** — PRD que define *o quê* construir, no formato da casa.
+- **research** — decisões técnicas granulares (lib/pattern) por fase, com trade-offs.
+- **plan-phase → implement-phase** — decompõem e executam (vivem no projeto cota8; opcional aqui).
+
+## Fluxos possíveis (entre por onde fizer sentido)
+
+Não precisa rodar o pipeline inteiro — entre no estágio certo pro seu ponto de partida. `*` = skill
+fora deste catálogo (vive no cota8).
+
+| Situação | Fluxo |
+|---|---|
+| **Greenfield (ideia nova, do zero)** | `product-brainstorming` → `product-discovery` → `tech-discovery` → `prd-creator` → `research` → `plan-phase`* → `implement-phase`* |
+| **Ideia já validada, sistema novo** | `tech-discovery` → `prd-creator` → `research` → `plan-phase`* → `implement-phase`* |
+| **Feature nova em produto existente** | `prd-creator` → `research` → `plan-phase`* → `implement-phase`* |
+| **Feature pequena/clara (decisões óbvias)** | `prd-creator` → `plan-phase`* → `implement-phase`* (pula `research`) |
+| **Já tem PRD + decisões, só construir** | `plan-phase`* → `implement-phase`* |
+| **Só descobrir/validar o problema** | `product-discovery` (standalone) |
+| **Só explorar/estressar ideias** | `product-brainstorming` |
+| **Só desenhar/revisar a arquitetura** | `tech-discovery` (standalone) |
+| **Só uma decisão técnica pontual** | `research` |
+| **Só escrever o PRD** | `prd-creator` |
+| **Mudança técnica grande num código existente** | `tech-discovery` (foco em risco/boundaries) → `research` → `plan-phase`* |
+| **Criar/melhorar uma skill** | `skill-gen` → `skill-scanner` (auditar antes de distribuir) |
+| **Commit / infra (avulsos)** | `commit-message` · `hetzner-vm` · `linux-vm-hardening` · `tailscale-setup` |
+
+Princípios:
+- **Pule estágios** quando o artefato já existe (tem PRD? vá pro `research`/plan; decisões óbvias? pule `research`).
+- **O slug atravessa tudo** — `discovery-<slug>` → `tech-discovery-<slug>` → `prd-<slug>` → `technical-decisions-<slug>` → `phase-NN-<slug>`.
+- **Discovery (produto e técnico) é opcional** pra mudanças pequenas; obrigatório pra apostas grandes/irreversíveis.
+
+## Catálogo de skills
+
+### Produto → entrega (pipeline)
+| Skill | O que faz |
+|---|---|
+| `product-discovery` | Idéia vaga → discovery brief validado: entrevista (Mom Test/JTBD), pesquisa de mercado, instrumentos de pesquisa com usuários. |
+| `tech-discovery` | Arquiteto técnico: explora opções, desenha C4/boundaries, data model, NFRs+custo, STRIDE, spikes → tech brief. |
+| `prd-creator` | Gera `docs/prd-<slug>.md` no formato da casa, ancorado no codebase real. |
+| `research` | Pesquisa opções técnicas e gera um doc de decisões (trade-offs) por fase. |
+
+### Meta — criar e auditar skills
+| Skill | O que faz |
+|---|---|
+| `skill-gen` | Gera **e melhora** skills portáveis via entrevista; research/grounding (plan→capture→consolidate), iteração por exemplos, otimização de trigger, validação. ([repo](https://github.com/gabriel-f-santos/gen-skill)) |
+| `skill-scanner` | Audita uma skill (prompt injection, código malicioso, permissões, secrets) antes de instalar. |
+| `example-skill` | Template mínimo de uma página pra começar uma skill nova. |
+
+### Dev
+| Skill | O que faz |
+|---|---|
+| `commit-message` | Gera mensagem Conventional Commits a partir do diff staged (apresenta; não commita). |
+
+### Infra
+| Skill | O que faz |
+|---|---|
+| `hetzner-vm` | Provisiona VM Hetzner + Coolify via Terraform. |
+| `linux-vm-hardening` | Gera `cloud-init.yaml` com hardening (UFW, fail2ban, SSH key-only, Docker…). |
+| `tailscale-setup` | Configura tailnet/VPN de acesso SSH. |
+
+> `skill-gen` (a principal de autoria) é portável nos três runtimes e tem o repo dedicado
+> [gabriel-f-santos/gen-skill](https://github.com/gabriel-f-santos/gen-skill).
+
+## Instalar skills num projeto
+
+`install-skills.sh` copia (ou linka via submódulo) skills daqui para o `.claude/skills/` do
+projeto-alvo — que é o path que Claude Code e opencode descobrem nativamente (Codex usa
+`.codex/skills/` ou uma entrada no `config.toml`; veja o `PORTABILITY.md` de cada skill).
+
 ```bash
-# 1. Use um template como base
-cp -r templates/nextjs_vibecoding meu-app
-cd meu-app
+# rode a partir do projeto-alvo, apontando pra este repo
+./caminho/para/coding-agents/install-skills.sh --list                 # lista o catálogo
+./caminho/para/coding-agents/install-skills.sh                        # instala todas
+./caminho/para/coding-agents/install-skills.sh tech-discovery prd-creator   # específicas
 
-# 2. O arquivo CLAUDE.md já está configurado com a arquitetura
-
-# 3. Gere um PRP (Product Requirement Prompt) automaticamente
-/create-prp "User authentication with JWT tokens and email verification"
-
-# 4. Execute o PRP com agentes especializados
-/execute-prp PRPs/user-authentication/prp.md
-
-# 5. Os agentes desenvolvem a feature completa automaticamente!
-# ✅ Database schema + migrations
-# ✅ Backend API + authentication  
-# ✅ Frontend UI + state management
-# ✅ Tests >90% coverage
-# ✅ Integration + quality validation
+# ou mantenha em sincronia via submódulo git
+./caminho/para/coding-agents/install-skills.sh --submodule tech-discovery
 ```
 
-## 🤖 Sistema PRP + Multi-Agente Autônomo
-
-### **Como Funciona:**
-1. **📋 PRP Generation** - `/create-prp` gera especificações completas baseadas na sua arquitetura
-2. **📖 Lê arquitetura** - Agentes leem o `CLAUDE.md` e PRP do seu projeto
-3. **🎯 Coordenação automática** - MasterAgent coordena agentes especializados
-4. **🔄 Desenvolvimento paralelo** - Múltiplos agentes trabalham simultaneamente
-5. **✅ Quality gates** - Validação rigorosa em todas as camadas
-6. **🎉 Entrega completa** - Feature production-ready com >90% cobertura
-
-### **🧠 Agentes Disponíveis:**
-- **🎯 MasterAgent** - Coordenador geral de features
-- **🗄️ DatabaseArchitect** - Especialista em schemas e modelos de dados
-- **🛠️ BackendEngineer** - Desenvolvedor de APIs e lógica de negócio
-- **🎨 FrontendEngineer** - Especialista em UI/UX e componentes
-- **🧪 QAEngineer** - Especialista em qualidade e testes
-- **🔗 IntegrationExpert** - Especialista em integração de sistemas
-
-### **📋 Sistema PRP (Product Requirement Prompt):**
-- **Geração automática** de especificações técnicas completas
-- **Context-aware** - lê e segue a arquitetura do seu projeto
-- **Multi-tecnologia** - suporta FastAPI, Next.js, Flutter, Fastify
-- **Quality gates** - define validações rigorosas de qualidade
-- **Task breakdown** - divide features em tarefas especializadas
-
-### **Exemplo de Uso Avançado:**
+Manualmente, é só copiar a pasta da skill (o nome da pasta tem que bater com o `name:`):
 ```bash
-# 1. Gere PRP para feature complexa
-/create-prp "E-commerce product catalog with advanced search, filtering, shopping cart, and real-time inventory"
-
-# 2. Execute com coordenação de agentes
-/execute-prp PRPs/ecommerce-catalog/prp.md
-
-# O sistema automaticamente:
-# ✅ Analisa requisitos e cria especificação técnica completa
-# ✅ Coordena DatabaseArchitect para schema otimizado
-# ✅ Coordena BackendEngineer para APIs performáticas  
-# ✅ Coordena FrontendEngineer para UI responsiva
-# ✅ Coordena QAEngineer para testes abrangentes
-# ✅ Coordena IntegrationExpert para validação end-to-end
-# ✅ Entrega feature production-ready com >90% cobertura
+cp -r coding-agents/skills/tech-discovery <seu-projeto>/.claude/skills/
 ```
 
-### **🚀 Comandos Disponíveis:**
-```bash
-# Geração de PRP
-/create-prp "Feature description here"
-/create-prp "User authentication with OAuth" --priority high
+## Portabilidade (Claude Code · Codex · opencode)
 
-# Execução de PRP  
-/execute-prp PRPs/feature-name/prp.md
-/execute-prp PRPs/user-auth/prp.md --parallel
+O corpo das skills é portável; o controle por plataforma é sidecar:
+- **Claude Code / opencode** — descobrem em `.claude/skills/`. `allowed-tools` só vale no Claude.
+- **Codex** — copie pra `.codex/skills/` ou aponte no `config.toml`; deps em `agents/openai.yaml`.
+- Cada skill multi-runtime traz um `PORTABILITY.md` com o que configurar onde.
 
-# Agentes diretos (quando necessário)
-/agent master-agent "Coordinate development of dashboard feature"
-/agent backend-engineer "Implement Products API"
-/agent frontend-engineer "Create responsive product catalog UI"
+## Autoria & qualidade
+
+- **Criar/melhorar** uma skill → use `skill-gen` (entrevista → grounding → autoria → validação).
+- **Validar** estrutura → `python3 skills/skill-gen/scripts/validate_skill.py <skill> [--cross-platform]`.
+- **Auditar segurança** → `skill-scanner`.
+- Referência de fundo: [`docs/advanced-skill-engineering.md`](docs/advanced-skill-engineering.md),
+  [`best-practices-skill.md`](best-practices-skill.md), [`SECURITY_ANTIPATTERNS.md`](SECURITY_ANTIPATTERNS.md).
+
+## Também neste repo
+
+Além do catálogo de skills, o repo mantém:
+- **`templates/`** — templates de projeto (FastAPI, Next.js, Flutter, Fastify) pra início rápido.
+- **`.claude/`** — sistema multi-agente + PRP (agents/, commands/, docs de PRP) usado pelos templates.
+
+---
+
+Estrutura:
 ```
-
-## ✨ Funcionalidades dos Templates
-
-### **📁 Cada Template Inclui:**
-- ✅ **Arquitetura vibecoding** - Desenvolvimento rápido (15 min/feature)
-- ✅ **Guias detalhados** - Step-by-step para novas features
-- ✅ **Prompts Claude Code** - Templates específicos para cada tecnologia  
-- ✅ **Exemplos funcionais** - Features demo prontas para usar
-- ✅ **Testes abrangentes** - >90% cobertura desde o início
-- ✅ **Documentação completa** - CLAUDE.md com toda arquitetura
-
-### **🎯 Guias de Desenvolvimento:**
-Cada template possui um **guia completo** no `CLAUDE.md`:
-- **Step-by-step** para adicionar features
-- **Prompts especialızados** para Claude Code subagents  
-- **Decision trees** para escolhas arquiteturais
-- **Quality gates** e checklists de completitude
-- **Code templates** e exemplos práticos
-
-### **🤖 Integração com Claude Code:**
-- **Prompts otimizados** para cada stack tecnológico
-- **Subagents especializados** por domínio (Backend, Frontend, QA)
-- **Coordenação automática** entre agentes
-- **Qualidade garantida** com gates rigorosos
-
-## 🎉 Benefícios
-
-### **⚡ Desenvolvimento Ultrarrápido**
-- Features completas em **15-30 minutos**
-- Agentes trabalham em **paralelo** automaticamente
-- **Zero configuração** - só seguir os padrões
-
-### **🏆 Qualidade Premium**
-- **>90% cobertura de testes** obrigatória
-- **Validação em múltiplas camadas** (DB, API, UI, Integração)
-- **Performance otimizada** (<200ms APIs, <3s UI)
-- **Acessibilidade** (WCAG 2.1) incluída
-
-### **🎯 Consistência Arquitetural**
-- **Segue padrões específicos** do seu projeto
-- **Mantém integridade** arquitetural
-- **Escala facilmente** para projetos grandes
-- **Reutilizável** em diferentes features
-
-### **📈 Produtividade Maximizada**
-- **Claude Code otimizado** com prompts específicos
-- **Desenvolvimento autônomo** enquanto você foca na estratégia
-- **Documentação automática** de padrões e decisões
-- **Onboarding rápido** para novos desenvolvedores
+coding-agents/
+├── skills/                 # ← o catálogo (uma pasta por skill)
+├── install-skills.sh       # instalador (copy ou submódulo)
+├── docs/                   # advanced-skill-engineering.md, etc.
+├── templates/              # templates de projeto
+└── .claude/                # multi-agente + PRP (agents, commands)
+```

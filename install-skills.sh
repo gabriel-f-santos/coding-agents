@@ -25,9 +25,9 @@ set -euo pipefail
 
 CODING_AGENTS_REPO="https://github.com/gabriel-f-santos/coding-agents"
 SUBMODULE_PATH=".claude/_skills-source"
-# Relative path from .claude/skills/ to the submodule's skills dir
-# (.claude/skills/ -> ../ -> .claude/ -> _skills-source/.claude/skills/)
-SYMLINK_BASE="../_skills-source/.claude/skills"
+# Relative path from the target .claude/skills/ to the submodule's skills dir
+# (.claude/skills/ -> ../ -> .claude/ -> _skills-source/skills/)
+SYMLINK_BASE="../_skills-source/skills"
 
 # --- Defaults ----------------------------------------------------------------
 
@@ -39,7 +39,7 @@ declare -a SKILLS_TO_INSTALL=()
 
 # Auto-detect source: if script lives inside coding-agents, use it directly
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [[ -d "$SCRIPT_DIR/.claude/skills" ]]; then
+if [[ -d "$SCRIPT_DIR/skills" ]]; then
   SOURCE_DIR="$SCRIPT_DIR"
 fi
 
@@ -70,11 +70,11 @@ ok()   { echo "  ✓ $*"; }
 
 resolve_source_skills() {
   if [[ -n "$SOURCE_DIR" ]]; then
-    [[ -d "$SOURCE_DIR/.claude/skills" ]] \
-      || die "Nao encontrei .claude/skills/ em '$SOURCE_DIR'"
-    echo "$SOURCE_DIR/.claude/skills"
+    [[ -d "$SOURCE_DIR/skills" ]] \
+      || die "Nao encontrei skills/ em '$SOURCE_DIR'"
+    echo "$SOURCE_DIR/skills"
   elif $USE_SUBMODULE; then
-    echo "$TARGET_DIR/$SUBMODULE_PATH/.claude/skills"
+    echo "$TARGET_DIR/$SUBMODULE_PATH/skills"
   else
     die "Nao sei onde estao as skills. Use --source /path/to/coding-agents ou --submodule"
   fi
@@ -91,7 +91,7 @@ list_skills() {
     name="$(basename "$dir")"
     [[ "$name" == example-* ]] && continue
     local desc
-    desc="$(awk '/^description:/{found=1; next} found && /^  /{gsub(/^  /,""); print; exit} found && !/^  /{exit}' "$dir/SKILL.md" | head -1)"
+    desc="$(awk '/^description:/{rest=$0; sub(/^description:[ \t]*/,"",rest); if(rest!="" && rest!=">" && rest!="|"){gsub(/^"|"$/,"",rest); print rest; exit} f=1; next} f&&/^[ \t]+/{line=$0; sub(/^[ \t]+/,"",line); print line; exit} f&&/^[^ \t]/{exit}' "$dir/SKILL.md" | head -1)"
     printf "  %-30s %s\n" "$name" "${desc:-(sem descrição)}"
   done
   echo ""

@@ -1,0 +1,11 @@
+# Codex sidecar — tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+
+dependencies:
+  mcp_servers: []   # uses built-in web search + subagents; context7 if available
+  skills: []        # optionally chains to ddd / grill-with-docs if present
+
+# Non-destructive (reads artifacts + writes a brief). Auto-invocation on.
+allow_implicit_invocation: true
+
+display_name: "Tech Discovery (Solution Architect)"
+category: "architecture"

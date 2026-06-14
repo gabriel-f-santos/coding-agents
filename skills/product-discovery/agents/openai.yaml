@@ -1,0 +1,11 @@
+# Codex sidecar — tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+
+dependencies:
+  mcp_servers: []   # uses built-in web search + subagents; no external MCP required
+  skills: []
+
+# Keep auto-invocation on: discovery is non-destructive (interviews + writes docs only).
+allow_implicit_invocation: true
+
+display_name: "Product Discovery"
+category: "product"

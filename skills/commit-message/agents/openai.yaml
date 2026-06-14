@@ -1,0 +1,11 @@
+# Codex sidecar — tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+
+dependencies:
+  mcp_servers: []   # none — uses local git only
+  skills: []
+
+# Leave auto-invocation on: drafting a commit message is non-destructive (it never commits).
+allow_implicit_invocation: true
+
+display_name: "Commit Message (Conventional Commits)"
+category: "git"
