@@ -7,6 +7,10 @@ place we author, store, and distribute skills; copy what you need into a project
 Skills live under **`skills/`** (one folder per skill, each with a `SKILL.md`). Install them into
 a project's `.claude/skills/` (the discovery path) with `install-skills.sh`.
 
+> **Fonte da verdade.** Este repo é **canônico**. Edite uma skill **aqui**; os projetos
+> consumidores (cota8, maripassa, …) recebem **cópias** via `install-skills.sh` ou
+> `cp -r`. Nunca hand-edite a cópia num consumidor — a mudança é feita aqui e copiada de volta.
+
 ---
 
 ## The flow — product → build
