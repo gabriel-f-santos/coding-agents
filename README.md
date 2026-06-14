@@ -157,6 +157,22 @@ cuidarem do *workflow* (deploy, CI, pipeline).
 > `github-actions`) cobrem o **workflow de deploy/CI** (wrangler, OIDC, gate por environment). Não
 > criamos uma `cloudflare` nossa — seria redundante com a oficial.
 
+## MCPs e ferramentas recomendadas
+
+Algumas skills **descobrem e usam servidores MCP / apps externos em runtime** (e degradam de boa
+se não estiverem conectados). Recomendados:
+
+| Ferramenta | O que é | Usada por | Instalar / conectar |
+|---|---|---|---|
+| **Context7** (MCP) | Docs de libs/frameworks **version-specific**, em tempo real (melhor que memória) | `research`, `tech-discovery`, `skill-gen` (grounding), `copilotkit` | `claude mcp add context7 -- npx -y @upstash/context7-mcp` (Upstash) — ou via marketplace oficial |
+| **Playwright** (MCP) | Automação de browser (snapshot, click, navigate, network) | `e2e-test-review`, `ux-design` (validação visual) | `claude mcp add playwright -- npx -y @playwright/mcp@latest` (Microsoft) |
+| **pencil.dev** (app + MCP) | Ferramenta de design AI-first; gera telas a partir de spec; MCP **local** | `pencil`, `ux-design` | Baixar o app em [pencil.dev](https://pencil.dev); a MCP sobe local e é **auto-registrada** pela extensão (sem `claude mcp add`). Abrir com o alias `pencil` |
+| **Figma** (MCP) *(opcional)* | Dev Mode MCP — cria/edita frames | `figma`, `ux-design` | Habilitar o Figma Dev Mode MCP (precisa de seat pago p/ write) |
+
+> As skills de design (`ux-design` → `pencil`/`figma`) e de docs (`research`/`tech-discovery` →
+> context7) fazem **descoberta em runtime**: usam a MCP se estiver conectada, senão degradam
+> (wireframes textuais / docs por web). Nada quebra se a ferramenta não estiver presente.
+
 ## Também neste repo
 
 Além do catálogo de skills, o repo mantém:
