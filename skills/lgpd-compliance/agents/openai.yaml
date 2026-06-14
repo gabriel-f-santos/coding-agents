@@ -1,0 +1,7 @@
+# Codex sidecar — read/advise + scaffold docs; no external MCP required.
+dependencies:
+  mcp_servers: []
+  skills: [review-security, tech-discovery]   # optional chaining (broader sec pass / privacy-by-design)
+allow_implicit_invocation: true
+display_name: "LGPD Compliance"
+category: "compliance"
