@@ -11,7 +11,7 @@ Research technical options and generate a structured decisions document for a pr
 ## Context — read before generating
 
 1. **`docs/project-plan.md`** — general project plan. Contains the phase description, its capabilities, and the defined stack.
-2. **`docs/decisions/`** — canonical source of technical decisions from previous phases. These are hard constraints — do not reopen decisions already made.
+2. **`docs/decisions/`** and **`docs/adr/`** — prior decisions at two altitudes: `docs/decisions/technical-decisions-*.md` (granular, per-phase) and accepted **Architecture Decision Records** in `docs/adr/` (high-level/architectural, e.g. from `tech-discovery`). Both are hard constraints — do not reopen decided/accepted choices, and never recommend an option that violates an accepted ADR.
 3. **`docs/phases/`** — already planned phases. Read for format and naming consistency reference only, not as a source of technical decisions.
 
 ## When this skill is needed

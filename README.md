@@ -56,6 +56,7 @@ Princípios:
 - **Pule estágios** quando o artefato já existe (tem PRD? vá pro `research`/plan; decisões óbvias? pule `research`).
 - **O slug atravessa tudo** — `discovery-<slug>` → `tech-discovery-<slug>` → `prd-<slug>` → `technical-decisions-<slug>` → `phase-NN-<slug>`.
 - **Discovery (produto e técnico) é opcional** pra mudanças pequenas; obrigatório pra apostas grandes/irreversíveis.
+- **Decisões em duas altitudes (ambas são hard constraints):** **ADRs** (`docs/adr/`, da `tech-discovery`) = arquiteturais/irreversíveis; **technical-decisions** (`docs/decisions/`, da `research`) = granulares por fase. `research` e `plan-phase` leem **ambas** e não as reabrem.
 
 ## Catálogo de skills
 

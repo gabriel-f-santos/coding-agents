@@ -42,6 +42,10 @@ the **actual** starting state:
   on the real names — quote concrete paths in the PRD (e.g. `Dashboard.tsx`,
   `insight-tools.factory.ts`), the way existing PRDs do.
 - Read related PRDs in `docs/prd-*.md` to reuse vocabulary and link them with `[[wikilinks]]`.
+- Read the upstream **tech-discovery brief** (`docs/architecture/*-tech-discovery.md`) and
+  accepted **ADRs** (`docs/adr/`) — these are architectural **hard constraints**: reflect them in
+  §4 (Restrições críticas) and don't reopen them. §6 (Decisões a tomar) is only for the
+  *granular* forks left to `research`, never the architecture already decided in an ADR.
 - Note what **already exists vs. what's missing** — this becomes the "O que já temos vs. o que
   falta" table and prevents over-scoping.
 

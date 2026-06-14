@@ -47,3 +47,9 @@ in decision order.
 
 A "Seed ADRs" section: a short table of `proposed ADR title | decision | rationale` for every
 choice that meets the three-part test above.
+
+> **These ADRs are first-class downstream constraints.** Once accepted in `docs/adr/`, both
+> `research` and `plan-phase` read `docs/adr/` and must not violate accepted ADRs. That's the
+> altitude split: **ADRs (here) = architectural / irreversible**;
+> **`docs/decisions/technical-decisions-*` (from `research`) = granular, per-phase.** Keep
+> high-level architecture decisions as ADRs; leave lib/pattern forks to `research`.
