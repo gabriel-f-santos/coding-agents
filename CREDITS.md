@@ -6,6 +6,12 @@ também. Crédito a quem é devido.
 
 ## Sentry — [github.com/getsentry](https://github.com/getsentry) · [getsentry/skills](https://github.com/getsentry/skills)
 
+> **Licença:** `getsentry/skills` é **Apache-2.0**, © 2025 Functional Software, Inc. dba Sentry.
+> As partes derivadas (skill-scanner, a arte de review da github-actions e — nos consumidores —
+> sentry-security-review) permanecem sob Apache-2.0 e foram **modificadas**. Texto da licença em
+> [`LICENSES/Apache-2.0.txt`](LICENSES/Apache-2.0.txt); atribuição completa em [`NOTICE`](NOTICE).
+> "Sentry" é citado só para atribuição — sem insinuar endosso.
+
 Plataforma de error tracking/observabilidade; o repo `getsentry/skills` foi fonte **direta**.
 
 - **`skill-scanner`** — adaptado do scanner de segurança de skills do Sentry (prompt injection,

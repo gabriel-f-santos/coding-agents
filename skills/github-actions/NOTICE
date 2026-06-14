@@ -1,0 +1,12 @@
+Most of this skill is original work (MIT, see SKILL.md frontmatter), EXCEPT:
+
+  references/security-review.md — a derivative work of
+  getsentry/skills/gha-security-review (threat model, exploitation classes, safe
+  patterns). Real-world cases credited to StepSecurity's HackerBot Claw analysis (2025).
+
+  Copyright 2025 Functional Software, Inc. dba Sentry
+  Source:  https://github.com/getsentry/skills/tree/main/skills/gha-security-review
+  License: Apache License 2.0 (see /LICENSES/Apache-2.0.txt at the repo root)
+
+That file was MODIFIED (rewritten/condensed) and remains governed by Apache-2.0.
+"Sentry" is referenced for attribution only and does not imply endorsement.

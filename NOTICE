@@ -1,0 +1,32 @@
+coding-agents — Agent Skills catalog
+Copyright (c) 2026 Gabriel Figueiredo
+
+This product includes software developed by third parties, listed below. Original
+copyright and license notices are retained; modified files are marked as modified.
+
+Unless a component says otherwise, the skills authored here are licensed MIT.
+
+------------------------------------------------------------------------------
+Components derived from getsentry/skills — Apache License 2.0
+Copyright 2025 Functional Software, Inc. dba Sentry
+Source: https://github.com/getsentry/skills
+License: https://www.apache.org/licenses/LICENSE-2.0  (see LICENSES/Apache-2.0.txt)
+
+The following parts of this repository are derivative works of getsentry/skills
+and remain governed by the Apache License 2.0. They have been MODIFIED:
+
+  * skills/skill-scanner/            — adapted from getsentry/skills/skill-scanner
+                                       (SKILL.md, references/, scripts/). Modified.
+  * skills/github-actions/references/security-review.md
+                                       — security-review art adapted from
+                                       getsentry/skills/gha-security-review
+                                       (attack classes, threat model, safe patterns).
+                                       Real-world cases credited to StepSecurity's
+                                       HackerBot Claw analysis (2025). Modified.
+
+Note: skills/sentry-security-review (when distributed in consumer projects) is also
+derived from getsentry/skills (Apache-2.0) and carries the same obligations.
+
+"Sentry" and "getsentry" are referenced solely for attribution and do not imply
+endorsement of this project by Functional Software, Inc. dba Sentry.
+------------------------------------------------------------------------------

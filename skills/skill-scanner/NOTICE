@@ -1,0 +1,9 @@
+This skill is a derivative work of getsentry/skills/skill-scanner.
+
+  Copyright 2025 Functional Software, Inc. dba Sentry
+  Source:  https://github.com/getsentry/skills/tree/main/skills/skill-scanner
+  License: Apache License 2.0 (see /LICENSES/Apache-2.0.txt at the repo root)
+
+Modified by Gabriel Figueiredo (2026): adapted for this catalog's conventions.
+The Apache-2.0 terms continue to govern this skill. "Sentry" is referenced for
+attribution only and does not imply endorsement.
