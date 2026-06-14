@@ -111,9 +111,12 @@ Lay down, in this order — keep each app a self-contained package:
 4. **Dev loop**: `infra/docker/compose.yaml`, `apps/*/scripts/{migrate,seed}.sh`, and `scripts/_common.sh`
    + `dev_{up,down,restart,seed,logs}.sh` from `references/docker-and-scripts.md`; `chmod +x scripts/*.sh`.
 5. **Harness**: `.pre-commit-config.yaml` + `.gitleaks.toml` (from `assets/templates/gitleaks.toml.tpl`) +
-   `.github/workflows/ci.yml` from `references/precommit-and-ci.md` — include only the language blocks/jobs for
-   apps that exist; path-scope every hook and CI filter. pre-commit stays fast (format/lint/secrets/msg); tests
-   run at **pre-push**; the message hook (Conventional Commits) is **on by default**.
+   `renovate.json5` (from `assets/templates/renovate.json5.tpl`) + `.github/workflows/ci.yml` from
+   `references/precommit-and-ci.md` — include only the language blocks/jobs for apps that exist; path-scope
+   every hook and CI filter. pre-commit stays fast (format/lint/secrets/msg); tests run at **pre-push**; the
+   message hook (Conventional Commits) is **on by default**. **Supply chain born locked:** commit the
+   lockfile, install from it (`npm ci`/`--frozen-lockfile`/`uv sync --frozen`), a **10-day cooldown**
+   (`minimumReleaseAge`), and the **osv-scanner** CI job.
 6. **`docs/architecture.md`** if you generated it (step 1).
 
 ### 5. Validate

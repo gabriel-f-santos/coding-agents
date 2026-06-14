@@ -5,9 +5,10 @@ description: >
   vulnerabilities in what was just built — "revisa segurança da fase", "tem vuln nessa feature?",
   "security review do diff", "checa injection/authz/IDOR". Reports HIGH-confidence,
   attacker-reachable issues only (injection, broken authZ / cross-tenant / IDOR, secret exposure,
-  missing validation, SSRF, deserialization, crypto misuse). Read-only — reports, does not fix.
-  Runs standalone or as a subagent of review-phase. Do not use for functional conformance
-  (review-functionality) or style/cleanup (review-quality).
+  missing validation, SSRF, deserialization, crypto misuse) AND supply-chain gaps (unpinned deps /
+  uncommitted lockfile / no cooldown). Read-only — reports, does not fix. Runs standalone or as a
+  subagent of review-phase. Do not use for functional conformance (review-functionality) or
+  style/cleanup (review-quality).
 allowed-tools: Read Grep Glob Bash(git diff *) Bash(git log *)
 ---
 
@@ -37,6 +38,11 @@ spot missing auth/validation a criterion implied).
   upload.
 - **Crypto** — weak/again-static IV, predictable tokens, missing TLS expectation, plaintext
   storage of sensitive data.
+- **Supply chain (dependencies)** — a dep installed without an effective version lock is a 2026
+  vulnerability: missing/uncommitted lockfile, install that ignores it (`npm install` vs `npm ci`),
+  unbounded ranges (`*`/`latest`/`>=` no ceiling, no lock), and **no cooldown** (`minimumReleaseAge`
+  / Dependabot `cooldown`) so an update can pull a just-published malicious version. When the diff
+  adds/bumps a dependency, check it. → `references/supply-chain.md`
 
 ## Do NOT flag
 - Test files, dead/commented code, docs.

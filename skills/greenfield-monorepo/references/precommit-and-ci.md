@@ -132,6 +132,32 @@ regexes = ['''EXAMPLE|CHANGEME|your-.*-here''']
 Tune the custom `[[rules]]` to our real key/token/URL formats; the `[allowlist]` stops false positives on
 `.env.example` and docs.
 
+## Supply chain — pin · cooldown · scan (born locked)
+An unpinned dependency is a 2026 vulnerability: the next install can pull a freshly-published malicious
+version. The scaffold ships these defaults so a new repo is locked by construction (the `review-security`
+skill flags the same gaps in existing repos).
+- **Commit the lockfile; install from it.** `package-lock.json`/`pnpm-lock.yaml`/`uv.lock`/`go.sum` are
+  committed; CI uses `npm ci`, `uv sync --frozen`, `pnpm install --frozen-lockfile` (never bare
+  `npm install`/`pip install <pkg>`). The CI jobs above already do this.
+- **Cooldown (minimum release age) = 10 days.** Delay installing just-published versions — most malicious
+  releases are yanked within days. Write a `renovate.json5` from `assets/templates/renovate.json5.tpl`
+  (`minimumReleaseAge: "10 days"`). For **pnpm** also set `minimumReleaseAge: 14400` (minutes = 10 days) in
+  `pnpm-workspace.yaml`/`.npmrc` so it's enforced **at install**, not just on update PRs.
+- **Scan for known-vulnerable AND malicious packages** — add the **osv-scanner** CI job (below); it uses
+  OSV.dev + the malicious-packages feed across 11+ ecosystems.
+- **Pin GitHub Actions to a commit SHA** for high-security repos (`actions/checkout@<sha> # v5`), not a
+  moving tag — actions are dependencies too.
+
+Add this job to `ci.yml`:
+```yaml
+  osv-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: google/osv-scanner-action/osv-scanner-action@v2   # pin to a SHA in real use
+        with: { scan-args: "-r --skip-git ./" }
+```
+
 ## `.github/workflows/ci.yml`
 A `changes` job computes which app changed; per-language jobs gate on it; a `pre-commit` job is the
 backstop. Action pins (2026-06): `dorny/paths-filter@v4`, `actions/checkout@v5`, `setup-python@v5`,
