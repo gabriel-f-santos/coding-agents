@@ -1,0 +1,7 @@
+# Codex sidecar — generates/reviews workflow files; no external MCP required.
+dependencies:
+  mcp_servers: []
+  skills: [greenfield-monorepo, review-security]   # optional: house CI / broader sec pass
+allow_implicit_invocation: true
+display_name: "GitHub Actions (generate & secure)"
+category: "ci-cd"

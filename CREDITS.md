@@ -16,6 +16,10 @@ Plataforma de error tracking/observabilidade; o repo `getsentry/skills` foi font
   *iteração a partir de exemplos* e o *description-optimization* foram destilados pra dentro da
   nossa `skill-gen` (`references/iteration.md`, `references/description-optimization.md`).
 - O estilo **confidence-based** influenciou os reviewers (`review-security`, `review-phase`).
+- **`getsentry/skills/gha-security-review`** — a arte de **review de segurança de GitHub Actions**
+  (threat model de atacante externo, classes de exploit: pwn request, expression injection,
+  comment-triggered commands, credential escalation, supply chain) foi adaptada para o modo REVIEW
+  da nossa skill **`github-actions`** (casos reais via análise HackerBot Claw da StepSecurity).
 
 ## Full Cycle — [github.com/devfullcycle](https://github.com/devfullcycle)
 
