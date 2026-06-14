@@ -69,7 +69,8 @@ Open `references/architecture.md` and resolve, one question at a time:
    - anything else (LangGraph, Go realtime, Flutter, Node, …) → `references/stack-research-recipe.md`
      (research live via context7/web; chain to a technical skill when one fits).
 4. **Conventions** — task runner (default go-task), pre-commit (default on), Conventional Commits hook
-   (default optional/off — it's the highest-friction hook), CI (default GitHub Actions).
+   (**default ON** — pairs with the `commit-message` skill), tests at **pre-push** (not per-commit),
+   `.gitleaks.toml` secret-scan (default ruleset + our rules), CI (default GitHub Actions).
 
 ### 2. Resolve stacks → references
 For each chosen app, open its stack reference. For pinned stacks, **re-verify the version pins** (the
@@ -109,8 +110,10 @@ Lay down, in this order — keep each app a self-contained package:
    reference; don't invent versions.
 4. **Dev loop**: `infra/docker/compose.yaml`, `apps/*/scripts/{migrate,seed}.sh`, and `scripts/_common.sh`
    + `dev_{up,down,restart,seed,logs}.sh` from `references/docker-and-scripts.md`; `chmod +x scripts/*.sh`.
-5. **Harness**: `.pre-commit-config.yaml` + `.github/workflows/ci.yml` from `references/precommit-and-ci.md`
-   — include only the language blocks/jobs for apps that exist; path-scope every hook and CI filter.
+5. **Harness**: `.pre-commit-config.yaml` + `.gitleaks.toml` (from `assets/templates/gitleaks.toml.tpl`) +
+   `.github/workflows/ci.yml` from `references/precommit-and-ci.md` — include only the language blocks/jobs for
+   apps that exist; path-scope every hook and CI filter. pre-commit stays fast (format/lint/secrets/msg); tests
+   run at **pre-push**; the message hook (Conventional Commits) is **on by default**.
 6. **`docs/architecture.md`** if you generated it (step 1).
 
 ### 5. Validate

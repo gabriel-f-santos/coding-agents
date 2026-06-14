@@ -10,13 +10,16 @@ Open when wiring the commit-time harness and CI. Drives JS/TS · Python · Go ·
   cleanly drive Python/Go/Dart). Drive CI with **GitHub Actions + `dorny/paths-filter`** so each app's
   lint/test runs only when its paths changed, plus a `pre-commit run --all-files` backstop. Add **gitleaks**
   as a hook *and* a CI job.
+- **Stages by speed:** keep `pre-commit` fast (format/lint/secrets/file checks); validate the message at
+  `commit-msg` (Conventional Commits, **on by default**); run **tests at `pre-push`** — not per-commit — with
+  CI as the real gate. gitleaks reads a repo **`.gitleaks.toml`** (default ruleset **+** our extra rules).
 
 ## `.pre-commit-config.yaml`
 Only include the language blocks for apps that exist. Scope every hook with `files: ^<app-root>/`.
 ```yaml
 exclude: |
   (?x)^(.*/node_modules/.*|.*/\.dart_tool/.*|.*/build/.*|.*/dist/.*|.*/vendor/.*|.*\.lock$|.*\.g\.dart$|.*\.freezed\.dart$)$
-default_install_hook_types: [pre-commit, commit-msg]
+default_install_hook_types: [pre-commit, commit-msg, pre-push]
 fail_fast: false
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -38,12 +41,12 @@ repos:
       - { id: ruff-check, args: [--fix], files: ^apps/backend-app/ }
       - { id: ruff-format, files: ^apps/backend-app/ }
 
-  # Secret scanning (also a CI job)
+  # Secret scanning (also a CI job). Auto-loads the repo's .gitleaks.toml (default ruleset + our extra rules).
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.24.2
     hooks: [{ id: gitleaks }]
 
-  # Conventional Commits (OPTIONAL — most friction-prone hook; keep optional)
+  # Conventional Commits — ON by default (pairs with the `commit-message` skill). Highest-friction hook; keep it.
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v9.22.0
     hooks:
@@ -78,9 +81,56 @@ repos:
         types: [dart]
         pass_filenames: false
         files: ^apps/mobile/
+
+  # Tests — PRE-PUSH stage (NOT pre-commit: keeps commits fast). Each needs its toolchain locally.
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (backend)
+        entry: bash -c 'cd apps/backend-app && uv run pytest -q'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        files: ^apps/backend-app/
+      - id: web-test
+        name: vitest (frontend)
+        entry: bash -c 'cd apps/frontend-app && npm test --silent'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
+        files: ^apps/frontend-app/
+      # add go (go test ./...) / mobile (flutter test) pre-push hooks when those apps exist
 ```
-Install: `pre-commit install && pre-commit install --hook-type commit-msg`, then
-`pre-commit run --all-files` once. Ruff hook ids are `ruff-check` + `ruff-format` (current names).
+Install: `pre-commit install` (installs pre-commit + commit-msg + pre-push via `default_install_hook_types`),
+then `pre-commit run --all-files` once. Ruff hook ids are `ruff-check` + `ruff-format` (current names).
+
+## `.gitleaks.toml` — our ruleset (extends the default)
+Write this at the repo root from `assets/templates/gitleaks.toml.tpl`. It **keeps** gitleaks' battle-tested
+default rules and only **adds** our project-specific ones — never hand-roll a regex secret scanner from
+scratch (high false-negative risk + maintenance burden; this is the worst place to DIY).
+```toml
+[extend]
+useDefault = true            # keep gitleaks' built-in rules; we only ADD on top
+
+[[rules]]
+id = "our-internal-url"
+description = "Internal/private hostname leaked in source"
+regex = '''https?://[a-z0-9.-]+\.(internal|local|corp)\b'''
+tags = ["internal"]
+
+[[rules]]
+id = "our-service-token"
+description = "Our service token format (TODO: adjust to the real prefix)"
+regex = '''\bsk_(live|prod)_[A-Za-z0-9]{24,}\b'''
+tags = ["token"]
+
+[allowlist]
+description = "Known-safe placeholders"
+paths = ['''(^|/)\.env\.example$''', '''(^|/)README\.md$''']
+regexes = ['''EXAMPLE|CHANGEME|your-.*-here''']
+```
+Tune the custom `[[rules]]` to our real key/token/URL formats; the `[allowlist]` stops false positives on
+`.env.example` and docs.
 
 ## `.github/workflows/ci.yml`
 A `changes` job computes which app changed; per-language jobs gate on it; a `pre-commit` job is the
@@ -153,7 +203,7 @@ jobs:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - uses: gitleaks/gitleaks-action@v2
-        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        env: { GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}", GITLEAKS_CONFIG: .gitleaks.toml }
 ```
 
 ## Gotchas
@@ -168,6 +218,11 @@ jobs:
   `default_install_hook_types`).
 - **Don't use `mirrors-prettier`/`mirrors-eslint`** (dead) — use `repo: local` node hooks.
 - **Pin + autoupdate**: every `rev:` is a pinned tag; schedule `pre-commit autoupdate`.
+- **Tests are `pre-push`, not `pre-commit`** — they need the app's toolchain locally and are slower; since
+  hooks are bypassable (`--no-verify`), the CI test jobs stay the real gate. `pre-commit install` installs the
+  pre-push hook via `default_install_hook_types`.
+- **`.gitleaks.toml` at the repo root** is auto-loaded by the hook; the CI job sets `GITLEAKS_CONFIG`. Always
+  `[extend] useDefault = true` — **extend**, never replace, the default ruleset (hand-rolled regex misses secrets).
 
 ## SOURCES
 pre-commit.com (config schema, language/files/pass_filenames, stages); pre-commit-hooks v6.0.0;
