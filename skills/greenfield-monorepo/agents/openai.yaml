@@ -1,0 +1,16 @@
+# Codex sidecar for the greenfield-monorepo skill.
+# Tool/dependency control for Codex lives HERE, not in SKILL.md frontmatter.
+# (Claude Code uses `allowed-tools` in SKILL.md; opencode uses opencode.json — see PORTABILITY.md.)
+
+dependencies:
+  mcp_servers:
+    - context7        # live stack research for the generic path; degrade gracefully if absent
+  skills:
+    # Optional chains — used only when a real handoff exists; gate on presence.
+    - product-brainstorming   # when the project type/goal is unclear
+    - tech-discovery          # when there are real architecture/boundary/NFR/threat decisions
+
+# This skill writes many files and runs shell commands (git init, chmod, docker, lint/test).
+# Keep implicit invocation on — it should fire on "start a new monorepo" phrasing — but the
+# host's own permission layer should gate the writes/shell on a fresh-repo confirmation.
+allow_implicit_invocation: true

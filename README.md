@@ -47,6 +47,7 @@ fora deste catálogo (vive no cota8).
 | **Feature nova em produto existente** | `prd-creator` → `research` → `plan-phase`* → `implement-phase`* |
 | **Feature pequena/clara (decisões óbvias)** | `prd-creator` → `plan-phase`* → `implement-phase`* (pula `research`) |
 | **Já tem PRD + decisões, só construir** | `plan-phase`* → `implement-phase`* |
+| **Iniciar o monorepo do zero (scaffold do esqueleto)** | `greenfield-monorepo` (entrevista → apps, AGENTS.md, lint/test/pre-commit, docker+seed, CI) |
 | **Só descobrir/validar o problema** | `product-discovery` (standalone) |
 | **Só explorar/estressar ideias** | `product-brainstorming` |
 | **Só desenhar/revisar a arquitetura** | `tech-discovery` (standalone) |
