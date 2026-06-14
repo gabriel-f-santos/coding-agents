@@ -143,6 +143,20 @@ Parte do catálogo e do fluxo foi adaptada/inspirada em terceiros — crédito c
   evaluation, greenfield) ecoam `review-phase`, `refactor` e a mentalidade do pipeline
   discovery → design → plan → execute.
 
+## Skills oficiais recomendadas (não duplicamos — usamos)
+
+Para alguns domínios já existe uma skill **oficial do fornecedor**, mantida e sincronizada com a
+doc deles. Em vez de duplicar (e envelhecer), recomendamos instalar a oficial e deixar as nossas
+cuidarem do *workflow* (deploy, CI, pipeline).
+
+| Domínio | Skill oficial | De quem / fonte | Como instalar |
+|---|---|---|---|
+| **Cloudflare** (Workers/Pages, D1/R2/KV, Workers AI/Agents, DNS, WAF, IaC) | `cloudflare` | **Cloudflare**, via marketplace oficial da Anthropic `anthropics/claude-plugins-official`. Viesada a buscar na doc em tempo real ("trust the docs"). | `/plugin marketplace add anthropics/claude-plugins-official` → `/plugin install cloudflare@claude-plugins-official` |
+
+> Divisão: a skill oficial cobre **profundidade de plataforma/API**; as nossas (`greenfield-monorepo`,
+> `github-actions`) cobrem o **workflow de deploy/CI** (wrangler, OIDC, gate por environment). Não
+> criamos uma `cloudflare` nossa — seria redundante com a oficial.
+
 ## Também neste repo
 
 Além do catálogo de skills, o repo mantém:
