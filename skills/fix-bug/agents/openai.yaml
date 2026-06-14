@@ -1,0 +1,7 @@
+# Codex sidecar — edits code + runs tests (the objective oracle). No external MCP required.
+dependencies:
+  mcp_servers: []
+  skills: [review-functionality]   # optional: check the fix against the contract
+allow_implicit_invocation: true
+display_name: "Fix Bug (TDD red-green)"
+category: "engineering"
