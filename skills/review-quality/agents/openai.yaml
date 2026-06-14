@@ -1,0 +1,7 @@
+# Codex sidecar — read-only reviewer; control lives here, not in SKILL.md frontmatter.
+dependencies:
+  mcp_servers: []
+  skills: []
+allow_implicit_invocation: true
+display_name: "review-quality"
+category: "review"

@@ -1,0 +1,7 @@
+# Codex sidecar — orchestrator. Fans out the three reviewers via subagents.
+dependencies:
+  mcp_servers: []
+  skills: [review-functionality, review-security, review-quality]
+allow_implicit_invocation: true
+display_name: "Review Phase (orchestrator)"
+category: "review"
