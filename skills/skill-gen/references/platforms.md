@@ -102,6 +102,25 @@ Example `opencode.json` permission block:
 
 ---
 
+## Subagent frontmatter (`color`) — not a skill field, but a cross-platform trap
+
+Subagents (`.claude/agents/<name>.md`, mirrored to `.opencode/agents/`) carry a `color` accent
+in frontmatter. The runtimes disagree on what's valid:
+
+| Runtime | Accepts | On a bad value |
+|---|---|---|
+| Claude Code | CSS color names (`blue`, `purple`, …) **and** hex | lenient — unknown value falls back to a default, no load error |
+| opencode | **6-digit hex `#RRGGBB`** or enum `primary\|secondary\|accent\|success\|warning\|error\|info` | **hard config error** — the agent fails to load |
+| Codex | n/a (no subagent color) | — |
+
+**Cross-platform-safe value: a quoted hex** — `color: "#3b82f6"`. It validates in opencode and
+Claude Code renders it. **Quote it** — an unquoted `color: #3b82f6` makes YAML read `#…` as a
+comment and nulls the field. CSS names like `blue` work only in Claude Code and break opencode
+with `Expected a string matching ^#[0-9a-fA-F]{6}$ … got "blue"`. `validate_skill.py` flags an
+invalid `color` when one is present.
+
+---
+
 ## Sources
 
 - https://agentskills.io/specification

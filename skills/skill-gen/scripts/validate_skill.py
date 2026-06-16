@@ -24,6 +24,12 @@ CLAUDE_ONLY_CONSTRUCTS = [
     (re.compile(r"\$\{CLAUDE_SKILL_DIR\}"), "${CLAUDE_SKILL_DIR} (Claude-only variable)"),
 ]
 
+# Subagent frontmatter `color`: Claude Code accepts CSS color names, but opencode validates
+# strictly to a 6-digit hex (#RRGGBB) or one of these enum tokens and hard-fails otherwise.
+# Hex is the cross-platform-safe value (quote it so YAML doesn't read `#` as a comment).
+HEX_COLOR_RE = re.compile(r"^#[0-9a-fA-F]{6}$")
+OPENCODE_COLOR_ENUM = {"primary", "secondary", "accent", "success", "warning", "error", "info"}
+
 
 def parse_frontmatter(text):
     """Return (frontmatter_dict, body, raw_frontmatter) or (None, text, '') if absent.
@@ -108,6 +114,23 @@ def main():
                 warnings.append(f"'{k}' is Claude-only — inert in Codex/opencode (ok if intended)")
         elif k not in STANDARD_FIELDS:
             warnings.append(f"non-standard frontmatter field '{k}' (ignored by spec parsers)")
+
+    # --- color (subagent frontmatter): opencode validates strictly, Claude Code is lenient ---
+    raw_color = fm.get("color", "").strip()
+    if raw_color:
+        if raw_color.startswith("#"):
+            errors.append(
+                "color hex must be quoted (e.g. color: \"#3b82f6\") — an unquoted '#' starts a "
+                "YAML comment and nulls the value"
+            )
+        else:
+            color = raw_color.strip("\"'")
+            if not (HEX_COLOR_RE.match(color) or color in OPENCODE_COLOR_ENUM):
+                errors.append(
+                    f"color '{color}' is invalid for opencode — use a quoted 6-digit hex like "
+                    f"\"#3b82f6\" or one of {sorted(OPENCODE_COLOR_ENUM)} (Claude Code accepts "
+                    f"CSS names like 'blue', opencode does not)"
+                )
 
     # --- Claude-only constructs in a cross-platform skill ---
     # These are LEADS, not hard errors: a skill that *documents* the constructs (like a
