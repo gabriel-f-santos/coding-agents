@@ -84,6 +84,7 @@ Princípios:
 | Skill | O que faz |
 |---|---|
 | `commit-message` | Gera mensagem Conventional Commits a partir do diff staged (apresenta; não commita). |
+| `celery-rabbitmq` | Processamento assíncrono confiável com Celery sobre RabbitMQ: retries nativos, DLX/DLQ (padrão `acks_late` + `acks_on_failure_or_timeout=False`), publish/consume por nome, beat/cron, monitoramento de mensagens presas. |
 
 ### Infra
 | Skill | O que faz |

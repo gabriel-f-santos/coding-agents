@@ -1,0 +1,6 @@
+# Codex sidecar for the celery-rabbitmq skill.
+# Tool/dependency control for OpenAI Codex lives HERE, not in SKILL.md frontmatter.
+name: celery-rabbitmq
+allow_implicit_invocation: true
+dependencies:
+  - python3
