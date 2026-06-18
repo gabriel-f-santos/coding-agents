@@ -53,6 +53,46 @@ default) lets messages survive a broker restart.
 > arguments later, RabbitMQ raises `PRECONDITION_FAILED` and the worker won't boot. You must
 > delete and re-declare the queue (drain it first). Plan the arguments up front.
 
+## Gotcha — the terminal DLQ is NOT declared automatically (dead-letters vanish)
+
+Putting the DLQ in `task_queues` does **not** guarantee it exists on the broker. **Celery only
+declares the queues the worker actually consumes** (the ones in `-Q ...`, or all of `task_queues`
+if you pass none). The DLQ is *terminal* — nobody consumes it — and nothing is ever *published*
+to it directly (RabbitMQ routes there via the DLX), so `task_create_missing_queues` never fires
+for it either. Net result: **neither the `dead` queue nor the `dlx` exchange is created.**
+
+The main queue then dead-letters into an exchange that doesn't exist, and RabbitMQ **drops those
+messages silently**. The DLQ you "configured" retains nothing — and you only find out when you go
+looking for a failed message that should be there.
+
+**Fix — declare the dead-letter topology explicitly at worker boot, off the consume path.** A
+Celery **bootstep** that requires the `Pool` runs on every worker startup; grab a connection and
+declare the DLX + DLQ + binding in one idempotent call. Running on every boot means it survives a
+broker-instance replacement (a one-off manual `declare` only survives a restart).
+
+```python
+from celery import bootsteps
+from kombu import Exchange, Queue
+
+dlx = Exchange("dlx", type="direct", durable=True)
+dead = Queue("dead", dlx, routing_key="dead", durable=True)
+
+class DeclareDLQ(bootsteps.StartStopStep):
+    requires = {"celery.worker.components:Pool"}
+
+    def start(self, worker):
+        with worker.app.connection_for_write() as conn:
+            # declares the exchange + queue + binding in one shot, idempotent,
+            # without consuming the DLQ
+            dead.bind(conn).declare()
+
+app.steps["worker"].add(DeclareDLQ)
+```
+
+Alternatives: declare it in the broker's `definitions.json` / via `rabbitmqadmin` at broker boot
+(good if you manage the broker as infra-as-code), or in a `worker_ready` signal. The bootstep is
+the most portable — it travels with the app and needs no broker-side config.
+
 ## Pattern A (recommended) — native failure → DLX, no manual code
 
 Let exhausted retries fail the task and let Celery reject the delivery:
@@ -151,6 +191,9 @@ replaying stuck messages → `setup-ops.md` §monitoring.
 
 ## Verification checklist
 
+- [ ] Confirm the `dead` queue and `dlx` exchange **exist on the broker before sending the first
+      message** (Management UI / `rabbitmqadmin list queues exchanges`). If they're missing,
+      dead-letters are dropped silently — see the terminal-DLQ gotcha above.
 - [ ] Send a task that always raises `ValueError` (not in `autoretry_for`) → it should fail and
       land in `dead` immediately (1 message).
 - [ ] Send a task that raises a retryable error forever → it retries `max_retries` times, then

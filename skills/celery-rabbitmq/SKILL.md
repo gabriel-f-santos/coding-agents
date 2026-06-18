@@ -70,8 +70,10 @@ for selective dead-lettering, are in `references/retry-and-dlq.md`.
    Match the project's existing style (config location, settings source, async vs sync DB).
 
 2. **Declare the topology** — main exchange/queue with a `x-dead-letter-exchange`, plus the DLX
-   and dead-letter queue. → `references/retry-and-dlq.md` §topology. Start from
-   `assets/templates/celery_app.py.tpl`.
+   and dead-letter queue. The terminal DLQ won't be created by listing it in `task_queues`
+   (Celery only declares queues the worker *consumes*) — declare it explicitly at boot or
+   dead-letters drop silently. → `references/retry-and-dlq.md` §topology and §terminal-DLQ
+   gotcha. Start from `assets/templates/celery_app.py.tpl`.
 
 3. **Wire reliability flags** — `acks_late`, `acks_on_failure_or_timeout=False`,
    `reject_on_worker_lost`, `prefetch_multiplier=1` for long tasks, and per-task

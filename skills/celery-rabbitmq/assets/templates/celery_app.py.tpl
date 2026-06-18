@@ -8,7 +8,7 @@ references/retry-and-dlq.md for why each flag is here. Run:
 """
 import os
 
-from celery import Celery
+from celery import Celery, bootsteps
 from kombu import Exchange, Queue
 
 # --- exchanges --------------------------------------------------------------
@@ -33,8 +33,23 @@ task_queues = (
     ),
     Queue("dead", dlx_exchange, routing_key="dead", durable=True),
 )
+dead_queue = task_queues[-1]
+
+
+# The terminal `dead` queue has no consumer, so Celery never declares it (nor the
+# `dlx` exchange) — and `main`'s dead-letters would route to a missing exchange and
+# be dropped silently. Declare the DLX/DLQ explicitly at worker boot. Idempotent;
+# runs every boot, so it survives a broker-instance replacement. See retry-and-dlq.md.
+class DeclareDLQ(bootsteps.StartStopStep):
+    requires = {"celery.worker.components:Pool"}
+
+    def start(self, worker):
+        with worker.app.connection_for_write() as conn:
+            dead_queue.bind(conn).declare()  # exchange + queue + binding in one shot
+
 
 app = Celery("myproj")
+app.steps["worker"].add(DeclareDLQ)
 app.conf.update(
     broker_url=os.environ["BROKER_URL"],  # amqp://user:pass@host:5672/vhost  (from secret store)
     # result_backend=os.environ.get("RESULT_BACKEND"),  # only if you read task results
